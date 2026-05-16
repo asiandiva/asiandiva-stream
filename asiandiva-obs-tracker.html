@@ -47,6 +47,67 @@ body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hid
 @keyframes shimmer { 0%,100%{filter:drop-shadow(0 0 10px #FFD93D66)} 50%{filter:drop-shadow(0 0 24px #FF6B9Dcc)} }
 .goal-sub { font-size: 0.62rem; font-weight: 800; color: var(--text); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; opacity: 0.7; }
 
+/* ── MAX HYPE TAKEOVER (100% trigger) ── */
+#max-takeover {
+  display: none; position: absolute; inset: 0; z-index: 150;
+  align-items: center; justify-content: center; flex-direction: column;
+  pointer-events: none; border-radius: 20px; overflow: hidden;
+  background: radial-gradient(circle at center, rgba(80,10,40,0.96), rgba(10,0,15,0.96));
+  border: 2px solid var(--pink);
+}
+#max-takeover.active { display: flex; animation: max-flash 0.45s ease-in-out 7 alternate; }
+@keyframes max-flash {
+  from { box-shadow: 0 0 30px rgba(255,107,157,0.7) inset; }
+  to   { box-shadow: 0 0 55px rgba(255,217,61,0.95) inset; }
+}
+.max-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 0.82rem; color: #fff; letter-spacing: 3px;
+  text-transform: uppercase; text-align: center;
+  text-shadow: 0 0 12px rgba(255,217,61,0.8), 0 2px 0 #000;
+  transform: rotate(-3deg);
+  animation: max-title-wobble 0.5s ease-in-out infinite alternate;
+}
+@keyframes max-title-wobble {
+  from { transform: rotate(-3deg) translateY(0); }
+  to   { transform: rotate(-2deg) translateY(-3px); }
+}
+.max-sucker {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 2.2rem; font-weight: 900;
+  margin-top: 4px; letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--yellow), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-align: center;
+  transform: rotate(2deg);
+  animation: max-sucker-wobble 0.45s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 14px rgba(255,107,157,0.85));
+}
+@keyframes max-sucker-wobble {
+  from { transform: rotate(2deg) scale(1); }
+  to   { transform: rotate(3deg) scale(1.08); }
+}
+.max-evil {
+  font-size: 1.4rem; margin-top: 2px;
+  animation: max-evil-shake 0.2s ease-in-out infinite alternate;
+}
+@keyframes max-evil-shake {
+  from { transform: rotate(-10deg); } to { transform: rotate(10deg); }
+}
+.money-drop {
+  position: absolute; top: -30px;
+  font-size: 1.4rem;
+  animation: money-fall 1.8s linear forwards;
+  pointer-events: none;
+  text-shadow: 0 0 8px rgba(0,255,150,0.5);
+}
+@keyframes money-fall {
+  0%   { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(280px) rotate(720deg); opacity: 0; }
+}
+
 /* ── WIDGET ── */
 #widget { position: fixed; bottom: 20px; left: 20px; width: 320px; z-index: 100; }
 .widget-inner {
@@ -502,6 +563,11 @@ details summary::-webkit-details-marker { display: none; }
       <div class="goal-sub">AsianDiva community went crazy!</div>
     </div>
   </div>
+  <div id="max-takeover">
+    <div class="max-title">Thanks for the money</div>
+    <div class="max-sucker">SUCKER</div>
+    <div class="max-evil">😈</div>
+  </div>
   <div class="widget-inner">
 
     <div class="row-header">
@@ -514,14 +580,14 @@ details summary::-webkit-details-marker { display: none; }
 
     <div class="hype-row-header">
       <div class="row-icon-label"><span>⚡</span><span>Hype Meter</span></div>
-      <div class="hype-badge chill" id="hype-badge">😊 Chill</div>
+      <div class="hype-badge chill" id="hype-badge">😊 RELAX!</div>
     </div>
     <div class="hype-track"><div class="hype-fill" id="hype-fill"></div></div>
     <div class="hype-labels">
       <span class="hype-lbl active-chill" id="lbl-0">0</span>
-      <span class="hype-lbl" id="lbl-chill">😊 Chill</span>
-      <span class="hype-lbl" id="lbl-hyped">⚡ Hyped</span>
-      <span class="hype-lbl" id="lbl-overload">🔥 Overload</span>
+      <span class="hype-lbl" id="lbl-chill">😊 RELAX!</span>
+      <span class="hype-lbl" id="lbl-hyped">⚡ PURGING!</span>
+      <span class="hype-lbl" id="lbl-overload">🔥 FUCKKKK!</span>
     </div>
 
     <div class="activity-divider"></div>
@@ -590,13 +656,14 @@ const HYPE_MAX     = 100;
 const RATES = { bits: 0.01, t1: 2.50, t2: 5.00, t3: 12.50 };
 const HYPE_GAIN = { bits_sm: 8, bits_md: 18, bits_lg: 32, sub: 22, gift: 15 };
 const LEVELS = [
-  { min:0,  max:40,  key:'chill',    badge:'😊 Chill',    cls:'chill'    },
-  { min:40, max:70,  key:'hyped',    badge:'⚡ Hyped',    cls:'hyped'    },
-  { min:70, max:101, key:'overload', badge:'🔥 Overload', cls:'overload' },
+  { min:0,  max:40,  key:'chill',    badge:'😊 RELAX!',         cls:'chill'    },
+  { min:40, max:70,  key:'hyped',    badge:'⚡ PURGING!',       cls:'hyped'    },
+  { min:70, max:101, key:'overload', badge:'🔥 FUCKKKK!',       cls:'overload' },
 ];
 
 let revenue=0, hype=0, goalHit=false, connected=false;
 let ws=null, clientId='', token='', uid='', lastLevel='chill';
+let maxHypeFired=false;
 let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
 
@@ -700,6 +767,8 @@ function updateHype() {
   document.getElementById('lbl-hyped').className    = 'hype-lbl'+(level.cls==='hyped'    ?' active-hyped':'');
   document.getElementById('lbl-overload').className = 'hype-lbl'+(level.cls==='overload' ?' active-overload':'');
   if(level.cls==='overload' && lastLevel!=='overload') shakeWidget();
+  if(hype>=100 && !maxHypeFired){ maxHypeFired=true; triggerMaxHype(); }
+  if(hype<70) maxHypeFired=false;
   lastLevel = level.cls;
   BC.postMessage({ type:'hype', pct, cls:level.cls, badge:level.badge });
 }
@@ -708,6 +777,34 @@ function shakeWidget() {
   const w=document.getElementById('widget'); let t=0;
   const frames=[4,-4,3,-3,2,-2,1,0];
   const id=setInterval(()=>{ w.style.transform=`translateX(${frames[t]||0}px)`; t++; if(t>=frames.length){clearInterval(id);w.style.transform='';} },50);
+}
+
+function triggerMaxHype() {
+  const overlay = document.getElementById('max-takeover');
+  overlay.classList.add('active');
+  // hard shake
+  const w = document.getElementById('widget'); let t=0;
+  const frames=[-9,9,-8,8,-7,7,-6,6,-5,5,-4,4,-3,3,-2,2,-1,1,0];
+  const shakeId = setInterval(()=>{
+    w.style.transform=`translate(${frames[t]||0}px, ${(frames[t]||0)/2}px)`;
+    t++;
+    if(t>=frames.length){ clearInterval(shakeId); w.style.transform=''; }
+  }, 35);
+  // money rain
+  const money=['💸','💰','💵','💲','🤑','💸','💵'];
+  for(let i=0;i<22;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='money-drop';
+      el.textContent=money[Math.floor(Math.random()*money.length)];
+      el.style.left=(Math.random()*90+5)+'%';
+      el.style.animationDuration=(1.4+Math.random()*0.8)+'s';
+      overlay.appendChild(el);
+      setTimeout(()=>el.remove(),2400);
+    }, i*110);
+  }
+  // hide after 3.6s
+  setTimeout(()=>{ overlay.classList.remove('active'); }, 3600);
 }
 
 function spawnPop(type, text) {
