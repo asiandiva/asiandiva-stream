@@ -469,7 +469,7 @@ function parseLine(line) {
 
     // Blerp bot detection - reads Blerp chat message and sends to backend
     if(username.toLowerCase() === 'blerp') {
-      const match = text.match(/([^\s]+)\s+played\s+.+?Blerp\s+for\s+(\d+)\s+bits?/i);
+      const match = text.match(/([^\s]+)\s+played\s+.+?(?:for|using|with)\s+(\d+)/i);
       if(match) {
         const blerp_user = match[1];
         const blerp_bits = parseInt(match[2]);
