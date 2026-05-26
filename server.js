@@ -286,7 +286,7 @@ function connectIRC() {
 
   let buffer = '';
 
-  ircClient = tls.connect({ host: 'irc.chat.twitch.tv', port: 6697 }, () => {
+  ircClient = tls.connect({ host: 'irc.chat.twitch.tv', port: 6697, checkServerIdentity: () => undefined }, () => {
     ircClient.write('PASS oauth:justinfan12345\r\n');
     ircClient.write('NICK justinfan12345\r\n');
     ircClient.write(`JOIN #${CHANNEL_NAME}\r\n`);
