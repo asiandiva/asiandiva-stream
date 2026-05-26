@@ -662,7 +662,7 @@ const LEVELS = [
 ];
 
 let revenue=0, hype=0, goalHit=false, connected=false;
-let ws=null, clientId='', token='', uid='', lastLevel='chill';
+let clientId='', token='', uid='', lastLevel='chill';
 let maxHypeFired=false;
 let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
@@ -678,8 +678,8 @@ BC.onmessage = (e) => {
     return;
   }
   const msg = e.data;
-  if(msg.type==='connect')      { clientId=msg.clientId; token=msg.token; uid=msg.uid; if(connected){disconnectWS();} connectWS(); }
-  if(msg.type==='disconnect')   { disconnectWS(); }
+  if(msg.type==='connect')      { clientId=msg.clientId; token=msg.token; uid=msg.uid; startTracking(); }
+  if(msg.type==='disconnect')   { stopTracking(); }
   if(msg.type==='reset')        { resetAll(); }
   if(msg.type==='test_goal')    { testGoal(); }
   if(msg.type==='test_ht')      { testHypeTrain(); }
@@ -846,26 +846,23 @@ function stopSessionTimer() {
 
 
 
-function connectWS() {
-  ws=new WebSocket('wss://eventsub.wss.twitch.tv/ws');
-  ws.onmessage=async(e)=>{
-    const msg=JSON.parse(e.data), mt=msg.metadata?.message_type;
-    if(mt==='session_welcome'){
-      const sid=msg.payload.session.id;
-      try{
-        connected=true; setStatus('live','Live — tracking');
-        startSessionTimer();
-        startHypePubSub(token, uid);
-      }catch{
-        setStatus('err','Auth failed — check credentials'); ws.close();
-      }
-    }
-  };
-  ws.onerror=()=>setStatus('err','Connection error');
-  ws.onclose=()=>{ if(connected){connected=false;setTimeout(connectWS,5000);} };
-
-  // Connect to backend SSE server for bits/subs/resubs/giftsubs
+function startTracking() {
+  if(connected) stopTracking();
+  connected = true;
+  setStatus('live','Live — tracking');
+  startSessionTimer();
   connectBackendSSE();
+  startHypePubSub(token, uid);
+}
+
+function stopTracking() {
+  connected = false;
+  if(sseSource) { sseSource.close(); sseSource = null; }
+  if(pubSubWs) { pubSubWs.onclose = null; pubSubWs.close(); pubSubWs = null; }
+  if(pubSubPingInterval) { clearInterval(pubSubPingInterval); pubSubPingInterval = null; }
+  htConnected = false;
+  setStatus('off','Disconnected');
+  stopSessionTimer();
 }
 
 // ── BACKEND SSE CONNECTION ────────────────────────────────────────
@@ -876,20 +873,20 @@ function connectBackendSSE() {
   if(sseSource) sseSource.close();
   sseSource = new EventSource('https://asiandiva-bits-tracker.onrender.com/events');
 
+  sseSource.onopen = () => { console.log('✅ SSE connected'); };
+
   sseSource.onmessage = (e) => {
     try {
       const ev = JSON.parse(e.data);
-      if(ev.type === 'connected') { console.log('✅ Backend SSE connected'); return; }
+      if(ev.type === 'connected') return;
 
-      // ignore events replayed from before this session
       if(ev._ts && ev._ts < sessionStartTime) return;
 
-      // ignore already processed events (prevents doubling on reconnect)
       const eventId = ev._ts + '_' + ev.type + '_' + (ev.user||'');
       if(processedEvents.has(eventId)) return;
       processedEvents.add(eventId);
-      // keep set from growing too large
       if(processedEvents.size > 500) processedEvents.clear();
+
       if(ev.type === 'bits') {
         const b=ev.bits, g=b>=500?HYPE_GAIN.bits_lg:b>=100?HYPE_GAIN.bits_md:HYPE_GAIN.bits_sm;
         const src=ev.source==='blerp'?' (Blerp)':'';
@@ -910,18 +907,8 @@ function connectBackendSSE() {
     } catch(err) { console.error('SSE parse error:', err); }
   };
 
-  sseSource.onerror = () => {
-    sseSource.close();
-    setTimeout(connectBackendSSE, 5000);
-  };
+  // EventSource auto-reconnects on error — no manual reconnect needed
 }
-
-async function sub(sid,type,condition){
-  const r=await fetch('https://api.twitch.tv/helix/eventsub/subscriptions',{method:'POST',headers:{'Client-Id':clientId,'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({type,version:'1',condition,transport:{method:'websocket',session_id:sid}})});
-  if(!r.ok) throw new Error('failed');
-}
-
-function disconnectWS(){connected=false;ws?.close();setStatus('off','Disconnected');stopSessionTimer();}
 
 function triggerGoalAnimation(){
   document.getElementById('goal-overlay').style.display='flex';
