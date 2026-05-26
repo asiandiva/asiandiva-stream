@@ -243,15 +243,6 @@ BC.onmessage = (e) => {
 
   if(msg.type === 'status') {
     setTwDot(msg.state, msg.text);
-    if(msg.state === 'live') {
-      document.getElementById('tw-fields').style.display = 'none';
-      document.getElementById('tw-disc').style.display   = 'block';
-      document.getElementById('tw-btn').style.display    = 'none';
-    } else if(msg.state === 'off') {
-      document.getElementById('tw-fields').style.display = 'flex';
-      document.getElementById('tw-disc').style.display   = 'none';
-      document.getElementById('tw-btn').style.display    = 'block';
-    }
   }
 
   if(msg.type === 'ht_status') {
