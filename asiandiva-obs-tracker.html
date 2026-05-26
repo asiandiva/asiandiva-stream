@@ -680,8 +680,6 @@ BC.onmessage = (e) => {
   const msg = e.data;
   if(msg.type==='connect')      { clientId=msg.clientId; token=msg.token; uid=msg.uid; if(connected){disconnectWS();} connectWS(); }
   if(msg.type==='disconnect')   { disconnectWS(); }
-  if(msg.type==='connect_ht')   { htClientId=msg.clientId; htToken=msg.token; htUid=msg.uid; startHtWS(); }
-  if(msg.type==='disconnect_ht'){ disconnectHT(); }
   if(msg.type==='reset')        { resetAll(); }
   if(msg.type==='test_goal')    { testGoal(); }
   if(msg.type==='test_ht')      { testHypeTrain(); }
@@ -974,8 +972,10 @@ function setStatus(state,text){
 
 // ── HYPE TRAIN PUBSUB ────────────────────────────────────────────
 let pubSubWs = null;
+let pubSubPingInterval = null;
 
 function startHypePubSub(token, broadcasterId) {
+  if(pubSubPingInterval) { clearInterval(pubSubPingInterval); pubSubPingInterval = null; }
   if(pubSubWs) { pubSubWs.onclose=null; pubSubWs.close(); }
   pubSubWs = new WebSocket('wss://pubsub-edge.twitch.tv');
 
@@ -987,8 +987,7 @@ function startHypePubSub(token, broadcasterId) {
         auth_token: token
       }
     }));
-    // ping every 4 minutes to keep connection alive
-    setInterval(() => { if(pubSubWs.readyState===1) pubSubWs.send(JSON.stringify({type:'PING'})); }, 240000);
+    pubSubPingInterval = setInterval(() => { if(pubSubWs.readyState===1) pubSubWs.send(JSON.stringify({type:'PING'})); }, 240000);
   };
 
   pubSubWs.onmessage = (e) => {
@@ -1020,6 +1019,7 @@ function startHypePubSub(token, broadcasterId) {
   };
 
   pubSubWs.onclose = () => {
+    if(pubSubPingInterval) { clearInterval(pubSubPingInterval); pubSubPingInterval = null; }
     if(htConnected) {
       htConnected = false;
       setTimeout(() => startHypePubSub(token, broadcasterId), 5000);
@@ -1028,73 +1028,16 @@ function startHypePubSub(token, broadcasterId) {
 }
 
 // ── HYPE TRAIN MODE ───────────────────────────────────────────────
-let htWs=null, htConnected=false, htActive=false;
-
-// Check URL params for hype train credentials (fallback if BC fails)
-(function() {
-  const p = new URLSearchParams(window.location.search);
-  const hc = p.get('ht_client'), ht = p.get('ht_token'), hu = p.get('ht_uid');
-  if(hc && ht && hu) {
-    setTimeout(() => { htClientId=hc; htToken=ht; htUid=hu; startHtWS(); }, 3000);
-    // broadcast status every 5s so dock always knows
-    setInterval(() => {
-      if(htConnected) BC.postMessage({type:'ht_status', state:'live', text:'Live — watching for hype trains'});
-    }, 5000);
-  }
-})();
-let htClientId='', htToken='', htUid='';
+let htConnected=false, htActive=false;
 let htCountdownInterval=null, htCurrentLevel=0;
+let htEndTimeout=null, htExitTimeout=null;
 
 
-
-function startHtWS(){
-  if(htWs){htWs.onclose=null;htWs.close();}
-  htWs=new WebSocket('wss://eventsub.wss.twitch.tv/ws');
-  htWs.onmessage=async(e)=>{
-    const msg=JSON.parse(e.data), mt=msg.metadata?.message_type;
-    if(mt==='session_welcome'){
-      const sid=msg.payload.session.id;
-      try{
-        await htSub(sid,'channel.hype_train.begin',{broadcaster_user_id:htUid});
-        await htSub(sid,'channel.hype_train.progress',{broadcaster_user_id:htUid});
-        await htSub(sid,'channel.hype_train.end',{broadcaster_user_id:htUid});
-        htConnected=true;
-        setHtDot('live','Live — watching for hype trains');
-        BC.postMessage({type:'ht_status', state:'live', text:'Live — watching for hype trains'});
-      }catch{
-        setHtDot('err','Auth failed — check credentials');
-        BC.postMessage({type:'ht_status', state:'err', text:'Auth failed — check credentials'});
-      }
-    }
-    if(mt==='notification'){
-      const st=msg.metadata.subscription_type, ev=msg.payload.event;
-      if(st==='channel.hype_train.begin')  enterHypeTrainMode(ev.level,ev.progress,ev.goal,ev.expires_at);
-      if(st==='channel.hype_train.progress') updateHypeTrainMode(ev.level,ev.progress,ev.goal,ev.expires_at);
-      if(st==='channel.hype_train.end')    endHypeTrainMode(ev.level);
-    }
-  };
-  htWs.onclose=()=>{
-    if(htConnected){htConnected=false;setTimeout(startHtWS,5000);}
-  };
-}
-
-async function htSub(sid,type,condition){
-  const r=await fetch('https://api.twitch.tv/helix/eventsub/subscriptions',{method:'POST',headers:{'Client-Id':htClientId,'Authorization':'Bearer '+htToken,'Content-Type':'application/json'},body:JSON.stringify({type,version:'1',condition,transport:{method:'websocket',session_id:sid}})});
-  if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(r.status+': '+(e.message||'failed'));}
-}
-
-function disconnectHT(){
-  htConnected=false; htWs?.close();
-  setHtDot('off','Not connected');
-  if(htActive) exitHypeTrainMode();
-}
-
-function setHtDot(state,text){
-  BC.postMessage({ type:'ht_status', state, text });
-}
 
 // enter hype train — fade normal out, fade ht-mode in
 function enterHypeTrainMode(level,progress,goal,expiresAt){
+  if(htEndTimeout) { clearTimeout(htEndTimeout); htEndTimeout=null; }
+  if(htExitTimeout) { clearTimeout(htExitTimeout); htExitTimeout=null; }
   htActive=true; htCurrentLevel=level;
   const pct=goal>0?Math.min((progress/goal)*100,100):0;
   BC.postMessage({type:'ht_begin', level, pct});
@@ -1181,6 +1124,7 @@ function showLevelUpCelebration(level){
 
 // end train — show congratulations then slowly fade to normal
 function endHypeTrainMode(level){
+  if(!htActive) return;
   BC.postMessage({type:'ht_end', level});
   clearInterval(htCountdownInterval);
   document.getElementById('ht-countdown').textContent='—';
@@ -1189,16 +1133,16 @@ function endHypeTrainMode(level){
   document.getElementById('ht-train').style.left='96%';
   document.getElementById('ht-levelup-flash').style.display='none';
 
-  // show congratulations end screen
   const endScreen=document.getElementById('ht-end-screen');
   document.getElementById('end-level-text').textContent='Finished Level '+level+'!';
   endScreen.style.display='flex';
   requestAnimationFrame(()=>requestAnimationFrame(()=>endScreen.classList.add('visible')));
 
-  // after 5s start fading back to normal
-  setTimeout(()=>{
+  if(htEndTimeout) clearTimeout(htEndTimeout);
+  htEndTimeout = setTimeout(()=>{
     endScreen.classList.remove('visible');
-    setTimeout(exitHypeTrainMode, 1200);
+    if(htExitTimeout) clearTimeout(htExitTimeout);
+    htExitTimeout = setTimeout(exitHypeTrainMode, 1200);
   }, 5000);
 }
 
