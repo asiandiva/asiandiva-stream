@@ -667,6 +667,32 @@ let maxHypeFired=false;
 let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
 
+// ── SESSION PERSISTENCE ──────────────────────────────────────────
+function saveSession() {
+  localStorage.setItem('ad_session', JSON.stringify({
+    revenue, totalBitsCount, totalSubsCount, goalHit, sessionStartTime,
+    _saved: Date.now()
+  }));
+}
+
+function restoreSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem('ad_session'));
+    if(!s) return;
+    revenue = s.revenue || 0;
+    totalBitsCount = s.totalBitsCount || 0;
+    totalSubsCount = s.totalSubsCount || 0;
+    goalHit = s.goalHit || false;
+    sessionStartTime = s.sessionStartTime || Date.now();
+    updateGoalBar();
+    BC.postMessage({ type:'stats', bits:totalBitsCount, subs:totalSubsCount });
+  } catch(e) {}
+}
+
+function clearSession() {
+  localStorage.removeItem('ad_session');
+}
+
 // ── BROADCAST CHANNEL (talk to dock) ──────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
 
@@ -718,6 +744,7 @@ function addRevenue(amount, hypeGain, popType, popText, activityText, user, rawB
   BC.postMessage({ type:'stats', bits:totalBitsCount, subs:totalSubsCount });
 
   if(wasUnder && revenue>=REVENUE_GOAL && !goalHit){ goalHit=true; triggerGoalAnimation(); }
+  saveSession();
 }
 
 function addActivity(type, text) {
@@ -934,10 +961,13 @@ function stopConfetti(){if(cAnim)cancelAnimationFrame(cAnim);const c=document.ge
 
 let sessionStartTime = Date.now();
 
+restoreSession();
+
 function resetAll(){
   revenue=0;hype=0;goalHit=false;lastLevel='chill';
   totalBitsCount=0; totalSubsCount=0;
-  sessionStartTime = Date.now(); // mark new session start
+  sessionStartTime = Date.now();
+  clearSession();
   document.getElementById('goal-fill').style.width='0%';
   document.getElementById('goal-fill').classList.remove('complete');
   document.getElementById('goal-overlay').style.display='none';
