@@ -467,22 +467,7 @@ function parseLine(line) {
       }
     }
 
-    // Blerp bot detection - reads Blerp chat message and sends to backend
-    if(username.toLowerCase() === 'blerp') {
-      const match = text.match(/([^\s]+)\s+played\s+.+?(?:for|using|with)\s+(\d+)/i);
-      if(match) {
-        const blerp_user = match[1];
-        const blerp_bits = parseInt(match[2]);
-        // Send to backend server so tracker picks it up via SSE
-        fetch('https://asiandiva-bits-tracker.onrender.com/blerp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user: blerp_user, bits: blerp_bits })
-        }).catch(() => {});
-        // Also try BC for same-browser contexts
-        try { BC.postMessage({ type:'blerp_bits', user:blerp_user, bits:blerp_bits }); } catch(e){}
-      }
-    }
+    // Blerp detection handled by backend IRC — no chat overlay duplication
 
     addMessage(username, text, color, emoteTags, isAction);
   } catch(e) {}
