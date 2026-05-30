@@ -185,6 +185,7 @@ let token         = '';
 let ircWs         = null;
 let ircConnected  = false;
 let ircToken      = null;
+let ircAuthFailed = false;
 let logCount      = 0;
 let streamStart   = null;
 let uptimeTimer   = null;
@@ -324,13 +325,14 @@ function reRenderAll() {
 // ── IRC ───────────────────────────────────────────────────────────
 function connectIRC(tok) {
   ircToken=tok;
+  ircAuthFailed=false;
   if(ircWs){ircWs.onclose=null;ircWs.close();}
   ircWs=new WebSocket('wss://irc-ws.chat.twitch.tv:443');
 
   ircWs.onopen=()=>{
-    ircWs.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
     ircWs.send('PASS oauth:'+tok);
     ircWs.send('NICK asiandiva__');
+    ircWs.send('CAP REQ :twitch.tv/tags twitch.tv/commands');
     ircWs.send('JOIN #asiandiva__');
   };
 
@@ -338,6 +340,12 @@ function connectIRC(tok) {
     e.data.split('\r\n').forEach(line=>{
       if(!line) return;
       if(line.startsWith('PING')){ircWs.send('PONG :tmi.twitch.tv');return;}
+      if(line.includes('Login authentication failed') || line.includes('Login unsuccessful')) {
+        ircAuthFailed=true;
+        ircConnected=false;
+        setChatDot('err','Token expired — get a new OAuth token');
+        return;
+      }
       if(line.includes('366')||line.includes('JOIN #asiandiva__')) {
         ircConnected=true;
         setChatDot('live','Live · #asiandiva__');
@@ -351,6 +359,10 @@ function connectIRC(tok) {
 
   ircWs.onclose=()=>{
     ircConnected=false;
+    if(ircAuthFailed) {
+      setChatDot('err','Token expired — get a new OAuth token');
+      return;
+    }
     setChatDot('conn','Reconnecting…');
     setTimeout(()=>connectIRC(ircToken),5000);
   };
