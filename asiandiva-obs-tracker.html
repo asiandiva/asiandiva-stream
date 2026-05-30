@@ -668,11 +668,18 @@ let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
 
 // ── SESSION PERSISTENCE ──────────────────────────────────────────
-function saveSession() {
+let saveTimer = null;
+
+function _writeSession() {
+  saveTimer = null;
   localStorage.setItem('ad_session', JSON.stringify({
-    revenue, totalBitsCount, totalSubsCount, goalHit, sessionStartTime,
-    _saved: Date.now()
+    revenue, totalBitsCount, totalSubsCount, goalHit, sessionStartTime
   }));
+}
+
+function saveSession() {
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(_writeSession, 500);
 }
 
 function restoreSession() {
@@ -683,26 +690,25 @@ function restoreSession() {
     totalBitsCount = s.totalBitsCount || 0;
     totalSubsCount = s.totalSubsCount || 0;
     goalHit = s.goalHit || false;
-    sessionStartTime = s.sessionStartTime || Date.now();
+    if(s.sessionStartTime) sessionStartTime = s.sessionStartTime;
     updateGoalBar();
     BC.postMessage({ type:'stats', bits:totalBitsCount, subs:totalSubsCount });
   } catch(e) {}
 }
 
 function clearSession() {
+  if(saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
   localStorage.removeItem('ad_session');
 }
+
+window.addEventListener('beforeunload', () => {
+  if(saveTimer) _writeSession();
+});
 
 // ── BROADCAST CHANNEL (talk to dock) ──────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
 
 BC.onmessage = (e) => {
-  // Blerp bits from chat overlay
-  if(e.data?.type === 'blerp_bits') {
-    const b=e.data.bits, g=b>=500?HYPE_GAIN.bits_lg:b>=100?HYPE_GAIN.bits_md:HYPE_GAIN.bits_sm;
-    addRevenue(b*RATES.bits,g,'bits','⚡ +'+b+' Blerp bits', e.data.user+' used '+b+' Blerp bits!', e.data.user, b, b*RATES.bits, 0);
-    return;
-  }
   const msg = e.data;
   if(msg.type==='connect')      { clientId=msg.clientId; token=msg.token; uid=msg.uid; startTracking(); }
   if(msg.type==='disconnect')   { stopTracking(); }
@@ -913,6 +919,7 @@ function connectBackendSSE() {
       if(processedEvents.has(eventId)) return;
       processedEvents.add(eventId);
       if(processedEvents.size > 500) processedEvents.clear();
+      if(ev._ts >= sessionStartTime) sessionStartTime = ev._ts + 1;
 
       if(ev.type === 'bits') {
         const b=ev.bits, g=b>=500?HYPE_GAIN.bits_lg:b>=100?HYPE_GAIN.bits_md:HYPE_GAIN.bits_sm;
