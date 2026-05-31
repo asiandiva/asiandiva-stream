@@ -1028,9 +1028,9 @@ function startHypePubSub(token, broadcasterId) {
       const d = JSON.parse(msg.data.message);
       if(d.type === 'hype-train-start' || d.type === 'hype-train-progression') {
         const ht = d.data;
-        const level = Math.max(1, ht.level?.value || 1);
+        const level = Math.max(1, ht.progress?.level?.value || ht.level?.value || 1);
         const progress = ht.progress?.value || 0;
-        const goal = ht.progress?.goal || 1000;
+        const goal = ht.progress?.level?.goal || ht.progress?.goal || 1000;
         const expiry = new Date(Date.now() + (ht.expires_at ? new Date(ht.expires_at) - Date.now() : 90000)).toISOString();
         if(d.type === 'hype-train-start') enterHypeTrainMode(level, progress, goal, expiry);
         else updateHypeTrainMode(level, progress, goal, expiry);
