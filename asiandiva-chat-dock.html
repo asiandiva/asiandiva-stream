@@ -164,7 +164,9 @@ body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 // ── ALL VARIABLES ─────────────────────────────────────────────────
 const BC            = new BroadcastChannel('asiandiva-chat');
 const BROADCASTER   = '716266770';
-const CLIENT_ID     = 'c76fsghzngwflbmg06o6c9hj2ffub2';
+// Default: twitchtokengenerator.com's client_id (tokens generated there are bound to this)
+// Override via URL ?client_id=YOUR_OWN_CLIENT_ID if using a different OAuth provider
+const CLIENT_ID     = new URLSearchParams(window.location.search).get('client_id') || 'gp762nuuoqcoxypju8c569th9wz7q5';
 const MENTION_WORDS = ['asiandiva__','asiandiva','dave','@asiandiva__','@asiandiva','@dave'];
 const COMMANDS = [
   {name:'/ban',desc:'Ban a user',usage:'/ban [user]'},
