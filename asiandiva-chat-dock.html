@@ -512,7 +512,9 @@ async function fetchStreamInfo(tok) {
     const r=await fetch('https://api.twitch.tv/helix/streams?user_id='+BROADCASTER,{
       headers:{'Client-Id':CLIENT_ID,'Authorization':'Bearer '+tok}
     });
+    if(!r.ok) { console.error('[StreamInfo] HTTP', r.status, await r.text()); return; }
     const d=await r.json();
+    console.log('[StreamInfo] Response:', d);
     const s=d.data?.[0];
     if(s) {
       document.getElementById('viewer-count').textContent=s.viewer_count.toLocaleString();
@@ -526,7 +528,7 @@ async function fetchStreamInfo(tok) {
       document.getElementById('stream-uptime').textContent='—';
       streamStart=null; clearInterval(uptimeTimer);
     }
-  } catch(e){}
+  } catch(e){ console.error('[StreamInfo] Error:', e); }
 }
 function updateUptime() {
   if(!streamStart) return;
