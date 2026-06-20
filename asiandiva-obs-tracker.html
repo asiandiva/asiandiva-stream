@@ -994,6 +994,16 @@ function setStatus(state,text){
   BC.postMessage({ type:'status', state, text });
 }
 
+// ── DIRECT CONNECT FROM URL PARAMS (fallback if BC fails) ────────
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const c = p.get('client_id'), t = p.get('token'), u = p.get('uid');
+  if(c && t && u) {
+    clientId = c; token = t; uid = u;
+    setTimeout(startTracking, 1000);
+  }
+})();
+
 // ── HYPE TRAIN PUBSUB ────────────────────────────────────────────
 let pubSubWs = null;
 let pubSubPingInterval = null;
