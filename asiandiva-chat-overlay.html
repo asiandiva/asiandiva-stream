@@ -467,7 +467,14 @@ function parseLine(line) {
       }
     }
 
-    // Blerp detection handled by backend IRC — no chat overlay duplication
+    // Blerp BC broadcast for other widgets (birthday widget, etc.)
+    // Tracker ignores this — server IRC is authoritative for the tracker
+    if(username.toLowerCase() === 'blerp') {
+      const match = text.match(/([^\s]+)\s+played\s+.+?(?:for|using|with)\s+(\d+)/i);
+      if(match) {
+        try { BC.postMessage({ type:'blerp_bits', user:match[1], bits:parseInt(match[2]) }); } catch(e){}
+      }
+    }
 
     addMessage(username, text, color, emoteTags, isAction);
   } catch(e) {}
