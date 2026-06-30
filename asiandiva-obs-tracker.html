@@ -660,12 +660,15 @@ const LEVELS = [
   { min:40, max:70,  key:'hyped',    badge:'⚡ PURGING!',       cls:'hyped'    },
   { min:70, max:101, key:'overload', badge:'🔥 FUCKKKK!',       cls:'overload' },
 ];
+const TOKEN_ENDPOINT = 'https://asiandiva-bits-tracker.onrender.com/user-token';
+const DEFAULT_UID    = '716266770';
 
 let revenue=0, hype=0, goalHit=false, connected=false;
 let clientId='', token='', uid='', lastLevel='chill';
 let maxHypeFired=false;
 let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
+let autoRefreshOn = false;
 
 // ── SESSION PERSISTENCE ──────────────────────────────────────────
 let saveTimer = null;
@@ -704,6 +707,28 @@ function clearSession() {
 window.addEventListener('beforeunload', () => {
   if(saveTimer) _writeSession();
 });
+
+// ── AUTO-REFRESH TOKEN HELPER ────────────────────────────────────
+async function fetchAutoToken() {
+  try {
+    const r = await fetch(TOKEN_ENDPOINT);
+    if(!r.ok) return null;
+    const d = await r.json();
+    if(d.access_token) return { token: d.access_token, clientId: d.client_id };
+  } catch(e) { console.warn('[AutoToken] fetch failed:', e.message); }
+  return null;
+}
+
+async function refreshHypeTrainToken() {
+  const fresh = await fetchAutoToken();
+  if(fresh && fresh.token !== token) {
+    console.log('🔄 Tracker token refreshed');
+    token = fresh.token;
+    clientId = fresh.clientId;
+    // Reconnect PubSub with new token
+    if(connected) startHypePubSub(token, uid);
+  }
+}
 
 // ── BROADCAST CHANNEL (talk to dock) ──────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
@@ -994,13 +1019,34 @@ function setStatus(state,text){
   BC.postMessage({ type:'status', state, text });
 }
 
-// ── DIRECT CONNECT FROM URL PARAMS (fallback if BC fails) ────────
-(function() {
+// ── AUTO CONNECT ON STARTUP ──────────────────────────────────────
+(async function() {
   const p = new URLSearchParams(window.location.search);
-  const c = p.get('client_id'), t = p.get('token'), u = p.get('uid');
-  if(c && t && u) {
-    clientId = c; token = t; uid = u;
-    setTimeout(startTracking, 1000);
+  const urlClientId = p.get('client_id') || '';
+  const urlToken    = p.get('token')     || '';
+  const urlUid      = p.get('uid')       || DEFAULT_UID;
+
+  // Wait a moment for BC connect from mod panel
+  await new Promise(r => setTimeout(r, 1200));
+  if(connected) return; // already connected via BC
+
+  // Try auto-refresh from backend first
+  const auto = await fetchAutoToken();
+  if(auto) {
+    autoRefreshOn = true;
+    clientId = auto.clientId;
+    token = auto.token;
+    uid = urlUid;
+    startTracking();
+    // Refresh every 30 min
+    setInterval(refreshHypeTrainToken, 30 * 60 * 1000);
+    return;
+  }
+
+  // Fall back to URL params
+  if(urlClientId && urlToken && urlUid) {
+    clientId = urlClientId; token = urlToken; uid = urlUid;
+    startTracking();
   }
 })();
 
@@ -1032,6 +1078,8 @@ function startHypePubSub(token, broadcasterId) {
         BC.postMessage({type:'ht_status', state:'live', text:'Live — watching for hype trains'});
       } else {
         BC.postMessage({type:'ht_status', state:'err', text:'Hype train: ' + msg.error});
+        // Token may have expired — try auto-refresh
+        if(autoRefreshOn) setTimeout(refreshHypeTrainToken, 2000);
       }
     }
     if(msg.type === 'MESSAGE' && msg.data?.topic?.startsWith('hype-train-events-v1')) {
