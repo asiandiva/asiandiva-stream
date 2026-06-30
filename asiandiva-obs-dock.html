@@ -207,7 +207,12 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 <script>
 // ── BROADCAST CHANNEL ─────────────────────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
+const TOKEN_ENDPOINT = 'https://asiandiva-bits-tracker.onrender.com/user-token';
+const DEFAULT_UID    = '716266770';
 let logCount = 0;
+let autoRefreshOn = false;
+let currentToken  = '';
+let currentClientId = '';
 
 BC.onmessage = (e) => {
   const msg = e.data;
@@ -273,21 +278,52 @@ BC.onmessage = (e) => {
   }
 };
 
-// ── AUTO CONNECT FROM URL PARAMS ─────────────────────────────────
-window.addEventListener('load', () => {
+// ── AUTO-REFRESH HELPER ───────────────────────────────────────────
+async function fetchAutoToken() {
+  try {
+    const r = await fetch(TOKEN_ENDPOINT);
+    if(!r.ok) return null;
+    const d = await r.json();
+    if(d.access_token) return { token: d.access_token, clientId: d.client_id };
+  } catch(e) { console.warn('[AutoToken] fetch failed:', e.message); }
+  return null;
+}
+
+function sendCredentialsToTracker(clientId, token, uid) {
+  currentToken = token;
+  currentClientId = clientId;
+  document.getElementById('in-client').value = clientId;
+  document.getElementById('in-token').value  = token;
+  document.getElementById('in-uid').value    = uid;
+  BC.postMessage({ type:'connect', clientId, token, uid });
+  setTwDot('conn', 'Connecting…');
+}
+
+// ── AUTO CONNECT ─────────────────────────────────────────────────
+window.addEventListener('load', async () => {
   const p = new URLSearchParams(window.location.search);
-  const clientId = p.get('client_id') || '';
-  const token    = p.get('token')     || '';
-  const uid      = p.get('uid')       || '';
-  if(clientId && token && uid) {
-    document.getElementById('in-client').value = clientId;
-    document.getElementById('in-token').value  = token;
-    document.getElementById('in-uid').value    = uid;
-    setTimeout(() => {
-      BC.postMessage({ type:'connect', clientId, token, uid });
-      setTwDot('conn', 'Connecting…');
-    }, 1500);
-  }
+  const urlClientId = p.get('client_id') || '';
+  const urlToken    = p.get('token')     || '';
+  const urlUid      = p.get('uid')       || DEFAULT_UID;
+
+  // Prefer auto-refresh from backend
+  const auto = await fetchAutoToken();
+  setTimeout(() => {
+    if(auto) {
+      autoRefreshOn = true;
+      sendCredentialsToTracker(auto.clientId, auto.token, urlUid);
+      // refresh every 30 min
+      setInterval(async () => {
+        const fresh = await fetchAutoToken();
+        if(fresh && fresh.token !== currentToken) {
+          console.log('🔄 Mod panel token refreshed');
+          sendCredentialsToTracker(fresh.clientId, fresh.token, urlUid);
+        }
+      }, 30 * 60 * 1000);
+    } else if(urlClientId && urlToken && urlUid) {
+      sendCredentialsToTracker(urlClientId, urlToken, urlUid);
+    }
+  }, 1500);
 });
 
 // ── SEND COMMANDS TO OVERLAY ──────────────────────────────────────
