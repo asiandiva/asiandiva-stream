@@ -164,9 +164,9 @@ body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 // ── ALL VARIABLES ─────────────────────────────────────────────────
 const BC            = new BroadcastChannel('asiandiva-chat');
 const BROADCASTER   = '716266770';
-// Default: twitchtokengenerator.com's client_id (tokens generated there are bound to this)
-// Override via URL ?client_id=YOUR_OWN_CLIENT_ID if using a different OAuth provider
-const CLIENT_ID     = new URLSearchParams(window.location.search).get('client_id') || 'gp762nuuoqcoxypju8c569th9wz7q5';
+const TOKEN_ENDPOINT = 'https://asiandiva-bits-tracker.onrender.com/user-token';
+// CLIENT_ID is auto-updated from /user-token. Falls back to URL ?client_id= or twitchtokengenerator default.
+let CLIENT_ID       = new URLSearchParams(window.location.search).get('client_id') || 'gp762nuuoqcoxypju8c569th9wz7q5';
 const MENTION_WORDS = ['asiandiva__','asiandiva','dave','@asiandiva__','@asiandiva','@dave'];
 const COMMANDS = [
   {name:'/ban',desc:'Ban a user',usage:'/ban [user]'},
@@ -184,6 +184,7 @@ const COMMANDS = [
 ];
 
 let token         = '';
+let autoRefreshOn = false;
 let ircWs         = null;
 let ircConnected  = false;
 let ircToken      = null;
@@ -196,38 +197,50 @@ let filteredCmds  = [];
 const emoteMap    = {};
 const rawMsgs     = [];
 
+// ── AUTO-REFRESH TOKEN HELPER ─────────────────────────────────────
+async function fetchAutoToken() {
+  try {
+    const r = await fetch(TOKEN_ENDPOINT);
+    if(!r.ok) return null;
+    const d = await r.json();
+    if(d.access_token) {
+      if(d.client_id) CLIENT_ID = d.client_id;
+      return d.access_token;
+    }
+  } catch(e) { console.warn('[AutoToken] fetch failed:', e.message); }
+  return null;
+}
+
+async function refreshAndReconnect() {
+  const newToken = await fetchAutoToken();
+  if(newToken && newToken !== token) {
+    console.log('🔄 Token auto-refreshed');
+    token = newToken;
+    ircAuthFailed = false;
+    if(ircWs) { ircWs.onclose = null; try { ircWs.close(); } catch(e){} }
+    connectIRC(token);
+  }
+}
+
 // ── STARTUP ───────────────────────────────────────────────────────
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   const p = new URLSearchParams(window.location.search);
-  token = p.get('token') || '';
+  const urlToken = p.get('token') || '';
+
+  // Prefer auto-refresh from backend; fall back to URL param token
+  const autoToken = await fetchAutoToken();
+  if(autoToken) { token = autoToken; autoRefreshOn = true; }
+  else token = urlToken;
+
   if(token) {
     loadEmotes(token).then(() => reRenderAll());
     connectIRC(token);
     fetchStreamInfo(token);
     setInterval(() => fetchStreamInfo(token), 60000);
+    // Auto-refresh token every 30 min (access tokens last ~4 hours)
+    if(autoRefreshOn) setInterval(refreshAndReconnect, 30 * 60 * 1000);
   }
 });
-
-// ── PINNED MESSAGE POLLING ────────────────────────────────────────
-let lastPinnedId = null;
-
-async function pollPinnedMessage(tok) {
-  try {
-    const r = await fetch('https://api.twitch.tv/helix/channels/followed?user_id='+BROADCASTER+'&broadcaster_id='+BROADCASTER, {
-      headers:{'Client-Id':CLIENT_ID,'Authorization':'Bearer '+tok}
-    });
-  } catch(e) {}
-  // Poll chat settings for pinned messages
-  try {
-    const r = await fetch('https://api.twitch.tv/helix/chat/settings?broadcaster_id='+BROADCASTER, {
-      headers:{'Client-Id':CLIENT_ID,'Authorization':'Bearer '+tok}
-    });
-    if(r.ok) {
-      // chat settings don't include pinned messages directly
-      // pinned messages come via IRC highlighted-message tag (already handled)
-    }
-  } catch(e){}
-}
 
 // ── BROADCAST CHANNEL ─────────────────────────────────────────────
 BC.onmessage = (e) => {
@@ -345,7 +358,7 @@ function connectIRC(tok) {
       if(line.includes('Login authentication failed') || line.includes('Login unsuccessful')) {
         ircAuthFailed=true;
         ircConnected=false;
-        setChatDot('err','Token expired — get a new OAuth token');
+        setChatDot('err','Token expired — refreshing…');
         return;
       }
       if(line.includes('366')||line.includes('JOIN #asiandiva__')) {
@@ -362,7 +375,13 @@ function connectIRC(tok) {
   ircWs.onclose=()=>{
     ircConnected=false;
     if(ircAuthFailed) {
-      setChatDot('err','Token expired — get a new OAuth token');
+      // Try to refresh token via backend
+      if(autoRefreshOn) {
+        setChatDot('conn','Refreshing token…');
+        refreshAndReconnect();
+      } else {
+        setChatDot('err','Token expired — get a new OAuth token');
+      }
       return;
     }
     setChatDot('conn','Reconnecting…');
@@ -495,8 +514,6 @@ function clearLog() {
   document.getElementById('log-list').innerHTML='<div class="log-empty" id="log-empty">Waiting for chat…</div>';
 }
 
-// ── PINNED ────────────────────────────────────────────────────────
-
 // ── STATUS DOTS ───────────────────────────────────────────────────
 function setOverlayDot(on) {
   document.getElementById('overlay-dot').className='wdot'+(on?' live':'');
@@ -516,7 +533,6 @@ async function fetchStreamInfo(tok) {
     });
     if(!r.ok) { console.error('[StreamInfo] HTTP', r.status, await r.text()); return; }
     const d=await r.json();
-    console.log('[StreamInfo] Response:', d);
     const s=d.data?.[0];
     if(s) {
       document.getElementById('viewer-count').textContent=s.viewer_count.toLocaleString();
