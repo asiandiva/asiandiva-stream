@@ -12,6 +12,16 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'asiandiva-secret-2024';
 const CHANNEL_NAME   = (process.env.CHANNEL_NAME || 'asiandiva__').toLowerCase();
 const BLERP_BOT      = (process.env.BLERP_BOT    || 'blerp').toLowerCase();
 
+// ── USER OAUTH (for chat/widgets, auto-refresh) ──────────────────
+const USER_CLIENT_ID     = process.env.USER_CLIENT_ID     || '';
+const USER_CLIENT_SECRET = process.env.USER_CLIENT_SECRET || '';
+let   USER_REFRESH_TOKEN = process.env.USER_REFRESH_TOKEN || '';
+const AUTH_REDIRECT_URI  = (process.env.RENDER_EXTERNAL_URL || 'https://asiandiva-bits-tracker.onrender.com') + '/auth/callback';
+const USER_SCOPES        = 'chat:read chat:edit channel:read:hype_train';
+
+let userAccessToken   = null;
+let userTokenExpires  = 0;
+
 function setCORS(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -73,6 +83,56 @@ async function subscribe(token, clientId, type, condition, callbackUrl) {
   });
 }
 
+// ── REFRESH USER OAUTH TOKEN ─────────────────────────────────────
+async function refreshUserToken() {
+  if(!USER_REFRESH_TOKEN || !USER_CLIENT_ID || !USER_CLIENT_SECRET) {
+    throw new Error('User OAuth not configured. Set USER_CLIENT_ID, USER_CLIENT_SECRET env vars and visit /auth to get a refresh token.');
+  }
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: USER_REFRESH_TOKEN,
+    client_id: USER_CLIENT_ID,
+    client_secret: USER_CLIENT_SECRET
+  }).toString();
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'id.twitch.tv',
+      path: '/oauth2/token',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': body.length }
+    }, (res) => {
+      let data = '';
+      res.on('data', d => data += d);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if(json.access_token) {
+            userAccessToken  = json.access_token;
+            userTokenExpires = Date.now() + (json.expires_in - 120) * 1000; // 2 min safety buffer
+            if(json.refresh_token && json.refresh_token !== USER_REFRESH_TOKEN) {
+              USER_REFRESH_TOKEN = json.refresh_token;
+              console.warn('⚠️  Refresh token rotated. Update Render env USER_REFRESH_TOKEN to:', json.refresh_token);
+            }
+            console.log('✅ User token refreshed, expires in', json.expires_in, 'sec');
+            resolve(userAccessToken);
+          } else {
+            reject(new Error('Refresh failed: ' + data));
+          }
+        } catch(e) { reject(e); }
+      });
+    });
+    req.setTimeout(10000, () => { req.destroy(); reject(new Error('timeout')); });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+async function getUserToken() {
+  if(userAccessToken && Date.now() < userTokenExpires) return userAccessToken;
+  return refreshUserToken();
+}
+
 const clients = new Set();
 let recentEvents = [];
 
@@ -97,7 +157,7 @@ function verifySignature(req, body) {
   catch(e) { return false; }
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   setCORS(res);
   if(req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
 
@@ -117,7 +177,112 @@ const server = http.createServer((req, res) => {
 
   if(req.url === '/health') {
     res.writeHead(200, {'Content-Type':'application/json'});
-    res.end(JSON.stringify({ status:'ok', clients: clients.size }));
+    res.end(JSON.stringify({
+      status:'ok',
+      clients: clients.size,
+      user_oauth_configured: !!(USER_CLIENT_ID && USER_CLIENT_SECRET && USER_REFRESH_TOKEN),
+      user_token_valid: !!(userAccessToken && Date.now() < userTokenExpires)
+    }));
+    return;
+  }
+
+  // ── USER TOKEN ENDPOINT (widgets fetch fresh tokens from here) ──
+  if(req.url === '/user-token') {
+    try {
+      const token = await getUserToken();
+      res.writeHead(200, {'Content-Type':'application/json'});
+      res.end(JSON.stringify({
+        access_token: token,
+        client_id: USER_CLIENT_ID,
+        expires_at: userTokenExpires
+      }));
+    } catch(e) {
+      res.writeHead(500, {'Content-Type':'application/json'});
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // ── AUTH FLOW (one-time setup) ──────────────────────────────────
+  if(req.url === '/auth') {
+    if(!USER_CLIENT_ID) {
+      res.writeHead(500, {'Content-Type':'text/html'});
+      res.end('<h1>Not configured</h1><p>Set USER_CLIENT_ID env var on Render first.</p>');
+      return;
+    }
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: USER_CLIENT_ID,
+      redirect_uri: AUTH_REDIRECT_URI,
+      scope: USER_SCOPES,
+      force_verify: 'true'
+    });
+    res.writeHead(302, { Location: 'https://id.twitch.tv/oauth2/authorize?' + params.toString() });
+    res.end();
+    return;
+  }
+
+  if(req.url.startsWith('/auth/callback')) {
+    const u = new URL(req.url, 'http://localhost');
+    const code = u.searchParams.get('code');
+    const err  = u.searchParams.get('error');
+    if(err) {
+      res.writeHead(400, {'Content-Type':'text/html'});
+      res.end('<h1>Authorization Error</h1><p>' + err + ': ' + (u.searchParams.get('error_description')||'') + '</p>');
+      return;
+    }
+    if(!code) {
+      res.writeHead(400, {'Content-Type':'text/html'});
+      res.end('<h1>No code provided</h1>');
+      return;
+    }
+    const body = new URLSearchParams({
+      client_id: USER_CLIENT_ID,
+      client_secret: USER_CLIENT_SECRET,
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: AUTH_REDIRECT_URI
+    }).toString();
+    const tokenReq = https.request({
+      hostname: 'id.twitch.tv',
+      path: '/oauth2/token',
+      method: 'POST',
+      headers: { 'Content-Type':'application/x-www-form-urlencoded', 'Content-Length': body.length }
+    }, (tokenRes) => {
+      let data = '';
+      tokenRes.on('data', d => data += d);
+      tokenRes.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if(json.refresh_token) {
+            USER_REFRESH_TOKEN = json.refresh_token;
+            userAccessToken    = json.access_token;
+            userTokenExpires   = Date.now() + (json.expires_in - 120) * 1000;
+            res.writeHead(200, {'Content-Type':'text/html'});
+            res.end(`<!DOCTYPE html><html><head><title>Authorized</title></head>
+              <body style="font-family:sans-serif;padding:40px;background:#1a0a2e;color:#fff;max-width:700px;margin:auto;line-height:1.6;">
+                <h1 style="background:linear-gradient(90deg,#FFD93D,#FF6B9D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">✅ Authorized!</h1>
+                <p>Copy this refresh token and add it to Render env vars as <code style="background:#000;padding:2px 6px;border-radius:4px;">USER_REFRESH_TOKEN</code>:</p>
+                <pre style="background:#000;padding:20px;border-radius:8px;word-break:break-all;color:#6EE7B7;font-size:14px;border:1px solid #FFD93D;">${json.refresh_token}</pre>
+                <h3 style="color:#FFD93D;">Next steps:</h3>
+                <ol>
+                  <li>Go to Render dashboard → <strong>asiandiva-bits-tracker</strong> → Environment</li>
+                  <li>Add env var: <code>USER_REFRESH_TOKEN</code> = <em>(paste value above)</em></li>
+                  <li>Save (Render will auto-redeploy in ~1 min)</li>
+                  <li>After deploy, all your widgets auto-refresh their tokens forever! 🎉</li>
+                </ol>
+                <p style="color:#9B7BB8;font-size:13px;">⚠️ This page will only show once. If you lose it, just visit /auth again.</p>
+              </body></html>`);
+          } else {
+            res.writeHead(500, {'Content-Type':'text/html'});
+            res.end('<h1>Twitch error</h1><pre>' + data + '</pre>');
+          }
+        } catch(e) { res.writeHead(500); res.end(e.message); }
+      });
+    });
+    tokenReq.on('error', (e) => { res.writeHead(500); res.end(e.message); });
+    tokenReq.write(body);
+    tokenReq.end();
     return;
   }
 
@@ -191,6 +356,10 @@ server.listen(PORT, () => {
   console.log('🚀 Server running on port', PORT);
   setupSubscriptions();
   connectIRC();
+  // Pre-warm user token on startup if configured
+  if(USER_CLIENT_ID && USER_CLIENT_SECRET && USER_REFRESH_TOKEN) {
+    refreshUserToken().catch(e => console.warn('Initial user token refresh failed:', e.message));
+  }
 });
 
 async function deleteAllSubs(token, clientId) {
