@@ -25,7 +25,6 @@ body {
 body::-webkit-scrollbar { width:4px; }
 body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
-/* ── HEADER ── */
 .dock-title {
   font-family: 'Fredoka One', sans-serif;
   font-size: 1.3rem;
@@ -35,11 +34,9 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 }
 .dock-hint { font-size:0.55rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; text-align:center; margin-bottom:12px; }
 
-/* ── CARDS ── */
 .card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
 .card-lbl { font-size:0.55rem; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; padding-bottom:7px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 
-/* ── STATS ROW ── */
 .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
 .stat { background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:10px 6px; text-align:center; }
 .stat-v { font-family:'Fredoka One',sans-serif; font-size:1.3rem; line-height:1; margin-bottom:3px; transition:transform 0.15s, filter 0.15s; }
@@ -47,14 +44,12 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 @keyframes bump { 0%{transform:scale(1)} 50%{transform:scale(1.25);filter:brightness(1.6)} 100%{transform:scale(1)} }
 .stat-l { font-size:0.5rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
 
-/* ── REVENUE ── */
 .rev-num { font-family:'Fredoka One',sans-serif; font-size:2.2rem; color:var(--yellow); text-shadow:0 0 16px rgba(255,217,61,0.35); text-align:center; line-height:1; }
 .rev-sub { font-size:0.62rem; color:var(--muted); font-weight:700; text-align:center; margin-top:3px; }
 .rev-bar { height:7px; background:var(--bg); border-radius:4px; overflow:hidden; margin-top:10px; }
 .rev-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--ydark),var(--yellow),var(--pink)); transition:width 0.8s ease; width:0%; }
 .rev-rates { font-size:0.52rem; color:var(--dim); margin-top:6px; text-align:center; }
 
-/* ── HYPE ── */
 .hype-row { display:flex; align-items:center; gap:8px; }
 .hype-bar-wrap { flex:1; height:7px; background:var(--bg); border-radius:4px; overflow:hidden; }
 .hype-bar { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--purple),var(--yellow),var(--pink)); transition:width 0.6s ease; width:0%; }
@@ -64,7 +59,6 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 .hype-badge.overload { background:rgba(255,107,157,0.2); color:var(--pink);   border:1px solid rgba(255,107,157,0.5); animation:bpulse 0.7s infinite; }
 @keyframes bpulse{0%,100%{opacity:1}50%{opacity:0.5}}
 
-/* ── ACTIVITY LOG ── */
 .log-list { max-height:200px; overflow-y:auto; }
 .log-list::-webkit-scrollbar { width:3px; }
 .log-list::-webkit-scrollbar-thumb { background:var(--dim); border-radius:2px; }
@@ -83,7 +77,6 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 .log-clear { font-size:0.52rem; color:var(--dim); cursor:pointer; font-weight:800; letter-spacing:1px; background:none; border:none; font-family:inherit; transition:color 0.2s; }
 .log-clear:hover { color:var(--pink); }
 
-/* ── CONNECTION SECTIONS ── */
 .conn-fields { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
 .conn-input { width:100%; background:var(--bg); border:1.5px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.72rem; font-weight:700; outline:none; transition:border-color 0.2s; }
 .conn-input:focus { border-color:var(--pink); }
@@ -107,7 +100,6 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   50%      { box-shadow: 0 0 24px rgba(255,107,157,0.5); }
 }
 
-/* overlay status indicator */
 .overlay-status { display:flex; align-items:center; justify-content:center; gap:6px; font-size:0.55rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; padding:6px; background:var(--bg2); border-radius:8px; border:1px solid var(--border); }
 </style>
 </head>
@@ -116,13 +108,11 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 <div class="dock-title">AsianDiva__ ✨</div>
 <div class="dock-hint">Private Dashboard · Viewers cannot see this</div>
 
-<!-- OVERLAY CONNECTION STATUS -->
 <div class="overlay-status">
   <div class="wdot" id="overlay-dot"></div>
   <span id="overlay-status-txt">Waiting for overlay…</span>
 </div>
 
-<!-- SESSION STATS -->
 <div class="card">
   <div class="card-lbl">Session Stats</div>
   <div class="stats-row">
@@ -132,16 +122,14 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   </div>
 </div>
 
-<!-- REVENUE -->
 <div class="card">
   <div class="card-lbl">Your Revenue (Private)</div>
   <div class="rev-num" id="d-rev">$0.00</div>
   <div class="rev-sub">of $100.00 goal</div>
   <div class="rev-bar"><div class="rev-fill" id="d-rev-fill"></div></div>
-  <div class="rev-rates">Bits $0.01 · T1 ~$2.50 · T2 ~$5.00 · T3 ~$12.50</div>
+  <div class="rev-rates">Bits $0.01 · Blerp $0.008 · T1 ~$2.50 · T2 ~$5.00 · T3 ~$12.50</div>
 </div>
 
-<!-- HYPE -->
 <div class="card">
   <div class="card-lbl">Hype Level</div>
   <div class="hype-row">
@@ -150,7 +138,6 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   </div>
 </div>
 
-<!-- ACTIVITY LOG -->
 <div class="card">
   <div class="card-lbl">
     <span>Recent Activity</span>
@@ -164,10 +151,8 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   </div>
 </div>
 
-<!-- TWITCH CONNECTION -->
 <div class="card">
   <div class="card-lbl">🔌 Twitch Connection</div>
-  <!-- hidden inputs still needed for sendConnect() logic -->
   <input id="in-client" type="hidden"/>
   <input id="in-token"  type="hidden"/>
   <input id="in-uid"    type="hidden"/>
@@ -179,11 +164,9 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   <div class="conn-status"><div class="wdot" id="tw-dot"></div><span id="tw-status">Connecting…</span></div>
 </div>
 
-<!-- HYPE TRAIN -->
 <div class="card">
   <div class="card-lbl">🚂 Hype Train Mode</div>
 
-  <!-- ALERT shows when train is active -->
   <div id="ht-alert" style="display:none; background:linear-gradient(135deg,rgba(255,217,61,0.12),rgba(255,107,157,0.12)); border:1.5px solid var(--yellow); border-radius:10px; padding:12px 14px; margin-bottom:10px; animation:hype-glow 1.2s ease-in-out infinite;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <span style="font-family:'Fredoka One',sans-serif;font-size:0.9rem;background:linear-gradient(90deg,var(--yellow),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🚂 Hype Train!</span>
@@ -205,7 +188,6 @@ body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 </div>
 
 <script>
-// ── BROADCAST CHANNEL ─────────────────────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
 const TOKEN_ENDPOINT = 'https://asiandiva-bits-tracker.onrender.com/user-token';
 const DEFAULT_UID    = '716266770';
@@ -217,7 +199,6 @@ let currentClientId = '';
 BC.onmessage = (e) => {
   const msg = e.data;
 
-  // overlay is alive
   const od = document.getElementById('overlay-dot');
   od.className = 'wdot live';
   document.getElementById('overlay-status-txt').textContent = 'Overlay connected';
@@ -278,7 +259,6 @@ BC.onmessage = (e) => {
   }
 };
 
-// ── AUTO-REFRESH HELPER ───────────────────────────────────────────
 async function fetchAutoToken() {
   try {
     const r = await fetch(TOKEN_ENDPOINT);
@@ -299,20 +279,17 @@ function sendCredentialsToTracker(clientId, token, uid) {
   setTwDot('conn', 'Connecting…');
 }
 
-// ── AUTO CONNECT ─────────────────────────────────────────────────
 window.addEventListener('load', async () => {
   const p = new URLSearchParams(window.location.search);
   const urlClientId = p.get('client_id') || '';
   const urlToken    = p.get('token')     || '';
   const urlUid      = p.get('uid')       || DEFAULT_UID;
 
-  // Prefer auto-refresh from backend
   const auto = await fetchAutoToken();
   setTimeout(() => {
     if(auto) {
       autoRefreshOn = true;
       sendCredentialsToTracker(auto.clientId, auto.token, urlUid);
-      // refresh every 30 min
       setInterval(async () => {
         const fresh = await fetchAutoToken();
         if(fresh && fresh.token !== currentToken) {
@@ -326,7 +303,6 @@ window.addEventListener('load', async () => {
   }, 1500);
 });
 
-// ── SEND COMMANDS TO OVERLAY ──────────────────────────────────────
 function sendConnect() {
   const clientId = document.getElementById('in-client').value.trim();
   const token    = document.getElementById('in-token').value.trim().replace(/^oauth:/,'');
@@ -344,7 +320,6 @@ function sendCmd(type) {
   BC.postMessage({ type });
 }
 
-// ── UI HELPERS ────────────────────────────────────────────────────
 function bumpVal(id, val) {
   const el = document.getElementById(id);
   el.textContent = val;
