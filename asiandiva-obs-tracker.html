@@ -22,10 +22,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
 
-/* ── CONFETTI ── */
 #confetti-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 9999; display: none; border-radius: 20px; }
 
-/* ── GOAL OVERLAY ── */
 #goal-overlay {
   display: none; position: absolute; inset: 0; z-index: 200;
   align-items: center; justify-content: center; flex-direction: column;
@@ -47,7 +45,6 @@ body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hid
 @keyframes shimmer { 0%,100%{filter:drop-shadow(0 0 10px #FFD93D66)} 50%{filter:drop-shadow(0 0 24px #FF6B9Dcc)} }
 .goal-sub { font-size: 0.62rem; font-weight: 800; color: var(--text); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; opacity: 0.7; }
 
-/* ── MAX HYPE TAKEOVER (100% trigger) ── */
 #max-takeover {
   display: none; position: absolute; inset: 0; z-index: 150;
   align-items: center; justify-content: center; flex-direction: column;
@@ -60,66 +57,20 @@ body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hid
   from { box-shadow: 0 0 30px rgba(255,107,157,0.7) inset; }
   to   { box-shadow: 0 0 55px rgba(255,217,61,0.95) inset; }
 }
-.max-title {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 0.82rem; color: #fff; letter-spacing: 3px;
-  text-transform: uppercase; text-align: center;
-  text-shadow: 0 0 12px rgba(255,217,61,0.8), 0 2px 0 #000;
-  transform: rotate(-3deg);
-  animation: max-title-wobble 0.5s ease-in-out infinite alternate;
-}
-@keyframes max-title-wobble {
-  from { transform: rotate(-3deg) translateY(0); }
-  to   { transform: rotate(-2deg) translateY(-3px); }
-}
-.max-sucker {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 2.2rem; font-weight: 900;
-  margin-top: 4px; letter-spacing: 4px;
-  background: linear-gradient(135deg, var(--yellow), var(--pink));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  text-align: center;
-  transform: rotate(2deg);
-  animation: max-sucker-wobble 0.45s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 14px rgba(255,107,157,0.85));
-}
-@keyframes max-sucker-wobble {
-  from { transform: rotate(2deg) scale(1); }
-  to   { transform: rotate(3deg) scale(1.08); }
-}
-.max-evil {
-  font-size: 1.4rem; margin-top: 2px;
-  animation: max-evil-shake 0.2s ease-in-out infinite alternate;
-}
-@keyframes max-evil-shake {
-  from { transform: rotate(-10deg); } to { transform: rotate(10deg); }
-}
-.money-drop {
-  position: absolute; top: -30px;
-  font-size: 1.4rem;
-  animation: money-fall 1.8s linear forwards;
-  pointer-events: none;
-  text-shadow: 0 0 8px rgba(0,255,150,0.5);
-}
-@keyframes money-fall {
-  0%   { transform: translateY(-30px) rotate(0deg); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateY(280px) rotate(720deg); opacity: 0; }
-}
+.max-title { font-family: 'Fredoka One', sans-serif; font-size: 0.82rem; color: #fff; letter-spacing: 3px; text-transform: uppercase; text-align: center; text-shadow: 0 0 12px rgba(255,217,61,0.8), 0 2px 0 #000; transform: rotate(-3deg); animation: max-title-wobble 0.5s ease-in-out infinite alternate; }
+@keyframes max-title-wobble { from { transform: rotate(-3deg) translateY(0); } to { transform: rotate(-2deg) translateY(-3px); } }
+.max-sucker { font-family: 'Fredoka One', sans-serif; font-size: 2.2rem; font-weight: 900; margin-top: 4px; letter-spacing: 4px; background: linear-gradient(135deg, var(--yellow), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; transform: rotate(2deg); animation: max-sucker-wobble 0.45s ease-in-out infinite alternate; filter: drop-shadow(0 0 14px rgba(255,107,157,0.85)); }
+@keyframes max-sucker-wobble { from { transform: rotate(2deg) scale(1); } to { transform: rotate(3deg) scale(1.08); } }
+.max-evil { font-size: 1.4rem; margin-top: 2px; animation: max-evil-shake 0.2s ease-in-out infinite alternate; }
+@keyframes max-evil-shake { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+.money-drop { position: absolute; top: -30px; font-size: 1.4rem; animation: money-fall 1.8s linear forwards; pointer-events: none; text-shadow: 0 0 8px rgba(0,255,150,0.5); }
+@keyframes money-fall { 0% { transform: translateY(-30px) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(280px) rotate(720deg); opacity: 0; } }
 
-/* ── WIDGET ── */
 #widget { position: fixed; bottom: 20px; left: 20px; width: 320px; z-index: 100; }
-.widget-inner {
-  background: rgba(26,10,46,0.90); backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255,217,61,0.25); border-radius: 20px;
-  padding: 8px 12px 10px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,107,157,0.08);
-}
+.widget-inner { background: rgba(26,10,46,0.90); backdrop-filter: blur(14px); border: 1.5px solid rgba(255,217,61,0.25); border-radius: 20px; padding: 8px 12px 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,107,157,0.08); }
 .row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .row-icon-label { display: flex; align-items: center; gap: 5px; font-size: 0.52rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
 
-/* goal bar */
 .goal-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 6px; }
 .goal-fill { height: 100%; border-radius: 7px; background: linear-gradient(90deg, var(--ydark), var(--yellow) 50%, var(--pink)); box-shadow: 0 0 16px rgba(255,217,61,0.4); transition: width 1.2s cubic-bezier(0.4,0,0.2,1); width: 0%; position: relative; overflow: hidden; }
 .goal-fill.complete { background: linear-gradient(90deg, var(--pink), var(--yellow), var(--purple)); animation: rainbow 2s linear infinite; }
@@ -129,7 +80,6 @@ body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hid
 
 .divider { height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 6px; }
 
-/* hype meter */
 .hype-row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .hype-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.58rem; font-weight: 800; letter-spacing: 1px; transition: all 0.4s ease; white-space: nowrap; }
 .hype-badge.chill    { background: rgba(199,125,255,0.2); color: var(--purple); border: 1px solid rgba(199,125,255,0.4); }
@@ -154,406 +104,81 @@ body { background: transparent; font-family: 'Nunito', sans-serif; overflow: hid
 .hype-lbl.active-hyped    { color: var(--yellow); }
 .hype-lbl.active-overload { color: var(--pink); }
 
-/* live dot */
 .wdot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); transition: all 0.3s; display: inline-block; }
 .wdot.live { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s infinite; }
 .wdot.conn { background: var(--yellow); animation: blink 0.5s infinite; }
 .wdot.err  { background: var(--pink); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
+#shoutout { display: none; position: absolute; bottom: 0; left: 0; right: 0; z-index: 300; pointer-events: none; padding: 10px 14px 12px; border-radius: 0 0 20px 20px; background: linear-gradient(180deg, transparent, rgba(26,10,46,0.97)); text-align: center; }
+.shoutout-inner { animation: shoutout-pop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+@keyframes shoutout-pop { 0% { transform: scale(0.6) translateY(10px); opacity: 0; } 70% { transform: scale(1.06) translateY(-2px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+.shoutout-tag { font-size: 0.5rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.shoutout-name { font-family: 'Fredoka One', sans-serif; font-size: 1.4rem; background: linear-gradient(135deg, var(--yellow), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; filter: drop-shadow(0 0 12px rgba(255,217,61,0.6)); animation: name-glow 0.8s ease-in-out infinite alternate; }
+@keyframes name-glow { from { filter: drop-shadow(0 0 8px rgba(255,217,61,0.4)); } to { filter: drop-shadow(0 0 20px rgba(255,107,157,0.8)); } }
+.shoutout-amount { font-size: 0.62rem; font-weight: 800; color: var(--text); letter-spacing: 2px; margin-top: 2px; opacity: 0.8; }
 
+.widget-inner { transition: opacity 0.6s ease; }
 
-/* ── SHOUTOUT FLASH ── */
-#shoutout {
-  display: none;
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 300;
-  pointer-events: none;
-  padding: 10px 14px 12px;
-  border-radius: 0 0 20px 20px;
-  background: linear-gradient(180deg, transparent, rgba(26,10,46,0.97));
-  text-align: center;
-}
-
-.shoutout-inner {
-  animation: shoutout-pop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-}
-
-@keyframes shoutout-pop {
-  0%   { transform: scale(0.6) translateY(10px); opacity: 0; }
-  70%  { transform: scale(1.06) translateY(-2px); opacity: 1; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.shoutout-tag {
-  font-size: 0.5rem;
-  font-weight: 800;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 3px;
-}
-
-.shoutout-name {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 1.4rem;
-  background: linear-gradient(135deg, var(--yellow), var(--pink));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-  filter: drop-shadow(0 0 12px rgba(255,217,61,0.6));
-  animation: name-glow 0.8s ease-in-out infinite alternate;
-}
-
-@keyframes name-glow {
-  from { filter: drop-shadow(0 0 8px rgba(255,217,61,0.4)); }
-  to   { filter: drop-shadow(0 0 20px rgba(255,107,157,0.8)); }
-}
-
-.shoutout-amount {
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: 2px;
-  margin-top: 2px;
-  opacity: 0.8;
-}
-
-
-/* ── HYPE TRAIN TAKEOVER ── */
-.widget-inner {
-  transition: opacity 0.6s ease;
-}
-
-#ht-mode {
-  display: none;
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  background: rgba(26,10,46,0.95);
-  padding: 14px 16px 16px;
-  flex-direction: column;
-  justify-content: space-between;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-#ht-mode.visible {
-  opacity: 1;
-}
-
-.ht-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ht-title {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 2px;
-  background: linear-gradient(90deg, var(--yellow), var(--pink));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.ht-countdown {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 0.75rem;
-  color: var(--muted);
-  letter-spacing: 1px;
-}
-
+#ht-mode { display: none; position: absolute; inset: 0; border-radius: 20px; background: rgba(26,10,46,0.95); padding: 14px 16px 16px; flex-direction: column; justify-content: space-between; opacity: 0; transition: opacity 0.6s ease; }
+#ht-mode.visible { opacity: 1; }
+.ht-header { display: flex; align-items: center; justify-content: space-between; }
+.ht-title { font-family: 'Fredoka One', sans-serif; font-size: 0.85rem; letter-spacing: 2px; background: linear-gradient(90deg, var(--yellow), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.ht-countdown { font-family: 'Fredoka One', sans-serif; font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
 .ht-countdown.urgent { color: var(--pink); animation: blink 0.6s infinite; }
+.ht-level-row { text-align: center; margin: 4px 0; }
+.ht-level-num { font-family: 'Fredoka One', sans-serif; font-size: 3rem; line-height: 1; color: var(--yellow); text-shadow: 0 0 24px rgba(255,217,61,0.6); transition: all 0.3s; }
+.ht-level-num.level-up { animation: level-bump 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes level-bump { 0% { transform: scale(1); } 50% { transform: scale(1.3); filter: brightness(1.8); } 100% { transform: scale(1); } }
+.ht-level-lbl { font-size: 0.52rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); font-weight: 800; margin-top: 2px; }
+.ht-track-wrap { position: relative; margin: 6px 0; }
+.ht-track { height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position: relative; }
+.ht-track-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--ydark), var(--yellow), var(--pink)); box-shadow: 0 0 14px rgba(255,217,61,0.5); transition: width 1s cubic-bezier(0.4,0,0.2,1); width: 0%; position: relative; overflow: hidden; }
+.ht-track-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.35) 55%, transparent 80%); animation: sheen 1.8s linear infinite; }
+.ht-train-emoji { position: absolute; top: -12px; font-size: 20px; transition: left 1s cubic-bezier(0.4,0,0.2,1); left: 0%; filter: drop-shadow(0 0 6px rgba(255,217,61,0.8)); animation: train-bounce 0.4s ease-in-out infinite alternate; transform: translateX(-50%); }
+@keyframes train-bounce { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(-3px); } }
 
-.ht-level-row {
-  text-align: center;
-  margin: 4px 0;
-}
+#ht-hype-msg { position: absolute; top: 20%; left: 50%; transform: translateX(-50%) translateY(-20px); background: linear-gradient(135deg, rgba(255,217,61,0.25), rgba(255,107,157,0.25)); border: 2px solid rgba(255,217,61,0.6); border-radius: 16px; padding: 12px 24px; font-family: 'Fredoka One', sans-serif; font-size: 1.6rem; color: #FFD93D; text-align: center; white-space: nowrap; display: none; opacity: 0; z-index: 20; text-shadow: 0 0 20px rgba(255,217,61,0.8); animation: none; }
+@keyframes hype-msg-in { 0% { opacity:0; transform:translateX(-50%) translateY(-30px) scale(0.8); } 60% { opacity:1; transform:translateX(-50%) translateY(0px) scale(1.05); } 100% { opacity:1; transform:translateX(-50%) translateY(0px) scale(1); } }
+@keyframes hype-msg-out { 0% { opacity:1; transform:translateX(-50%) translateY(0px) scale(1); } 100% { opacity:0; transform:translateX(-50%) translateY(-20px) scale(0.9); } }
 
-.ht-level-num {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 3rem;
-  line-height: 1;
-  color: var(--yellow);
-  text-shadow: 0 0 24px rgba(255,217,61,0.6);
-  transition: all 0.3s;
-}
-
-.ht-level-num.level-up {
-  animation: level-bump 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-}
-
-@keyframes level-bump {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.3); filter: brightness(1.8); }
-  100% { transform: scale(1); }
-}
-
-.ht-level-lbl {
-  font-size: 0.52rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 800;
-  margin-top: 2px;
-}
-
-/* animated train track */
-.ht-track-wrap {
-  position: relative;
-  margin: 6px 0;
-}
-
-.ht-track {
-  height: 12px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
-  position: relative;
-}
-
-.ht-track-fill {
-  height: 100%;
-  border-radius: 6px;
-  background: linear-gradient(90deg, var(--ydark), var(--yellow), var(--pink));
-  box-shadow: 0 0 14px rgba(255,217,61,0.5);
-  transition: width 1s cubic-bezier(0.4,0,0.2,1);
-  width: 0%;
-  position: relative;
-  overflow: hidden;
-}
-
-.ht-track-fill::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.35) 55%, transparent 80%);
-  animation: sheen 1.8s linear infinite;
-}
-
-/* train emoji that rides the bar */
-.ht-train-emoji {
-  position: absolute;
-  top: -12px;
-  font-size: 20px;
-  transition: left 1s cubic-bezier(0.4,0,0.2,1);
-  left: 0%;
-  filter: drop-shadow(0 0 6px rgba(255,217,61,0.8));
-  animation: train-bounce 0.4s ease-in-out infinite alternate;
-  transform: translateX(-50%);
-}
-
-@keyframes train-bounce {
-  from { transform: translateX(-50%) translateY(0); }
-  to   { transform: translateX(-50%) translateY(-3px); }
-}
-
-
-
-/* hype progression message */
-#ht-hype-msg {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background: linear-gradient(135deg, rgba(255,217,61,0.25), rgba(255,107,157,0.25));
-  border: 2px solid rgba(255,217,61,0.6);
-  border-radius: 16px;
-  padding: 12px 24px;
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 1.6rem;
-  color: #FFD93D;
-  text-align: center;
-  white-space: nowrap;
-  display: none;
-  opacity: 0;
-  z-index: 20;
-  text-shadow: 0 0 20px rgba(255,217,61,0.8);
-  animation: none;
-}
-@keyframes hype-msg-in {
-  0%   { opacity:0; transform:translateX(-50%) translateY(-30px) scale(0.8); }
-  60%  { opacity:1; transform:translateX(-50%) translateY(0px) scale(1.05); }
-  100% { opacity:1; transform:translateX(-50%) translateY(0px) scale(1); }
-}
-@keyframes hype-msg-out {
-  0%   { opacity:1; transform:translateX(-50%) translateY(0px) scale(1); }
-  100% { opacity:0; transform:translateX(-50%) translateY(-20px) scale(0.9); }
-}
-
-/* level up flash */
-#ht-levelup-flash {
-  display: none;
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  background: rgba(26,10,46,0.92);
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 10;
-  animation: flash-in 0.35s ease forwards;
-  pointer-events: none;
-}
-
-@keyframes flash-in {
-  0%   { opacity: 0; transform: scale(0.92); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
+#ht-levelup-flash { display: none; position: absolute; inset: 0; border-radius: 20px; background: rgba(26,10,46,0.92); align-items: center; justify-content: center; flex-direction: column; z-index: 10; animation: flash-in 0.35s ease forwards; pointer-events: none; }
+@keyframes flash-in { 0% { opacity: 0; transform: scale(0.92); } 100% { opacity: 1; transform: scale(1); } }
 .levelup-emoji { font-size: 2rem; animation: bounce 0.5s ease infinite alternate; }
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-8px)} }
+.levelup-text { font-family: 'Fredoka One', sans-serif; font-size: 2rem; letter-spacing: 3px; background: linear-gradient(135deg, var(--yellow), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 4px; filter: drop-shadow(0 0 16px rgba(255,217,61,0.6)); }
+.levelup-sub { font-size: 0.62rem; font-weight: 800; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
 
-.levelup-text {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 2rem;
-  letter-spacing: 3px;
-  background: linear-gradient(135deg, var(--yellow), var(--pink));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-top: 4px;
-  filter: drop-shadow(0 0 16px rgba(255,217,61,0.6));
-}
-
-.levelup-sub {
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-top: 6px;
-}
-
-/* end / congratulations screen */
-#ht-end-screen {
-  display: none;
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  background: rgba(26,10,46,0.95);
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-  pointer-events: none;
-  text-align: center;
-  padding: 16px;
-}
-
+#ht-end-screen { display: none; position: absolute; inset: 0; border-radius: 20px; background: rgba(26,10,46,0.95); align-items: center; justify-content: center; flex-direction: column; z-index: 10; opacity: 0; transition: opacity 0.8s ease; pointer-events: none; text-align: center; padding: 16px; }
 #ht-end-screen.visible { opacity: 1; }
-
 .end-emoji { font-size: 2.2rem; animation: bounce 0.6s ease infinite alternate; margin-bottom: 8px; }
+.end-congrats { font-family: 'Fredoka One', sans-serif; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.end-level-text { font-family: 'Fredoka One', sans-serif; font-size: 1.8rem; line-height: 1.1; background: linear-gradient(135deg, var(--yellow), var(--pink), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 1.5s ease-in-out infinite; letter-spacing: 2px; }
+.end-squad { font-size: 0.65rem; font-weight: 800; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+.end-stars { font-size: 1.2rem; margin-top: 6px; animation: star-pulse 1s ease-in-out infinite alternate; }
+@keyframes star-pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.1); opacity: 1; } }
+.ht-complete { display: none; }
 
-.end-congrats {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.end-level-text {
-  font-family: 'Fredoka One', sans-serif;
-  font-size: 1.8rem;
-  line-height: 1.1;
-  background: linear-gradient(135deg, var(--yellow), var(--pink), var(--purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 1.5s ease-in-out infinite;
-  letter-spacing: 2px;
-}
-
-.end-squad {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 8px;
-}
-
-.end-stars {
-  font-size: 1.2rem;
-  margin-top: 6px;
-  animation: star-pulse 1s ease-in-out infinite alternate;
-}
-
-@keyframes star-pulse {
-  from { transform: scale(1); opacity: 0.8; }
-  to   { transform: scale(1.1); opacity: 1; }
-}
-
-.ht-complete {
-  display: none;
-}
-
-/* ── RECENT ACTIVITY ── */
 .activity-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 5px 0 4px; }
-
 #activity-feed { min-height: 14px; }
-
-.activity-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.58rem;
-  font-weight: 700;
-  color: var(--text);
-  animation: activity-in 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@keyframes activity-in {
-  0%   { transform: translateY(8px); opacity: 0; }
-  100% { transform: translateY(0);   opacity: 1; }
-}
-
-.activity-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  flex-shrink: 0;
-}
+.activity-item { display: flex; align-items: center; gap: 5px; font-size: 0.58rem; font-weight: 700; color: var(--text); animation: activity-in 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@keyframes activity-in { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.activity-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 .activity-dot.bits { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
 .activity-dot.sub  { background: var(--pink);   box-shadow: 0 0 6px var(--pink); }
-
 .activity-name { color: var(--yellow); font-weight: 800; }
 .activity-name.sub-name { color: var(--pink); }
+.activity-empty { font-size: 0.52rem; font-weight: 700; color: var(--dim); letter-spacing: 2px; font-style: italic; }
 
-.activity-empty {
-  font-size: 0.52rem;
-  font-weight: 700;
-  color: var(--dim);
-  letter-spacing: 2px;
-  font-style: italic;
-}
-
-/* float pops */
 .float-pop { position: fixed; font-family: 'Fredoka One', sans-serif; font-size: 1.1rem; pointer-events: none; z-index: 500; animation: float-up 1.8s ease forwards; bottom: 110px; left: 50px; color: var(--yellow); text-shadow: 0 0 10px rgba(255,217,61,0.8); }
 .float-pop.sub-pop { color: var(--pink); text-shadow: 0 0 10px rgba(255,107,157,0.8); }
 @keyframes float-up { 0%{transform:translateY(0) scale(1);opacity:1} 80%{transform:translateY(-70px) scale(1.1);opacity:1} 100%{transform:translateY(-90px) scale(0.8);opacity:0} }
 
-/* ── CONTROL PANEL ── */
-
-
-/* ── SESSION STATS ROW ── */
 .btn-row { display: flex; gap: 10px; margin-top: 4px; }
 details summary::-webkit-details-marker { display: none; }
 </style>
 </head>
 <body>
 
-<!-- ── WIDGET (viewers see) ── -->
 <div id="widget">
   <canvas id="confetti-canvas"></canvas>
   <div id="goal-overlay">
@@ -569,15 +194,12 @@ details summary::-webkit-details-marker { display: none; }
     <div class="max-evil">😈</div>
   </div>
   <div class="widget-inner">
-
     <div class="row-header">
       <div class="row-icon-label"><span>💛</span><span id="widget-label">Squad Crime Activity</span></div>
       <div class="wdot" id="wdot"></div>
     </div>
     <div class="goal-track"><div class="goal-fill" id="goal-fill"></div></div>
-
     <div class="divider"></div>
-
     <div class="hype-row-header">
       <div class="row-icon-label"><span>⚡</span><span>Hype Meter</span></div>
       <div class="hype-badge chill" id="hype-badge">😊 RELAX!</div>
@@ -589,12 +211,10 @@ details summary::-webkit-details-marker { display: none; }
       <span class="hype-lbl" id="lbl-hyped">⚡ PURGING!</span>
       <span class="hype-lbl" id="lbl-overload">🔥 FUCKKKK!</span>
     </div>
-
     <div class="activity-divider"></div>
     <div id="activity-feed">
       <div class="activity-empty">Waiting for activity…</div>
     </div>
-
   </div>
   <div id="shoutout">
     <div class="shoutout-inner">
@@ -604,40 +224,28 @@ details summary::-webkit-details-marker { display: none; }
     </div>
   </div>
 
-  <!-- HYPE TRAIN TAKEOVER MODE -->
   <div id="ht-mode">
     <div class="ht-header">
       <div class="ht-title">🚂 Hype Train!</div>
       <div class="ht-countdown" id="ht-countdown">—</div>
     </div>
-
     <div class="ht-level-row">
       <div class="ht-level-num" id="ht-level-num">1</div>
       <div class="ht-level-lbl">Current Level</div>
     </div>
-
     <div class="ht-track-wrap">
       <div class="ht-train-emoji" id="ht-train">🚂</div>
       <div class="ht-track">
         <div class="ht-track-fill" id="ht-fill"></div>
       </div>
     </div>
-
-
-
     <div class="ht-complete" id="ht-complete"></div>
-
-    <!-- HYPE PROGRESSION MESSAGE -->
     <div id="ht-hype-msg">🚂 GAS UP THE TRAIN!</div>
-
-    <!-- LEVEL UP FLASH (shows briefly on each level) -->
     <div id="ht-levelup-flash">
       <div class="levelup-emoji">🚂⚡</div>
       <div class="levelup-text" id="levelup-text">Level 2!</div>
       <div class="levelup-sub">Squad Crime is HYPED!</div>
     </div>
-
-    <!-- CONGRATULATIONS END SCREEN -->
     <div id="ht-end-screen">
       <div class="end-emoji">🎉💛🎉</div>
       <div class="end-congrats">Congratulations!</div>
@@ -645,7 +253,6 @@ details summary::-webkit-details-marker { display: none; }
       <div class="end-squad">Thank you Squad! 💛</div>
       <div class="end-stars">✨ ⭐ ✨ ⭐ ✨</div>
     </div>
-
   </div>
 </div>
 
@@ -653,7 +260,8 @@ details summary::-webkit-details-marker { display: none; }
 const REVENUE_GOAL = 100.00;
 const HYPE_DECAY   = 0.4;
 const HYPE_MAX     = 100;
-const RATES = { bits: 0.01, t1: 2.50, t2: 5.00, t3: 12.50 };
+// Bits: $0.01 for native Twitch cheers. Third-party (Blerp) bits net $0.008 after 20% dev cut.
+const RATES = { bits: 0.01, bits_thirdparty: 0.008, t1: 2.50, t2: 5.00, t3: 12.50 };
 const HYPE_GAIN = { bits_sm: 8, bits_md: 18, bits_lg: 32, sub: 22, gift: 15 };
 const LEVELS = [
   { min:0,  max:40,  key:'chill',    badge:'😊 RELAX!',         cls:'chill'    },
@@ -662,6 +270,8 @@ const LEVELS = [
 ];
 const TOKEN_ENDPOINT = 'https://asiandiva-bits-tracker.onrender.com/user-token';
 const DEFAULT_UID    = '716266770';
+// Third-party bit sources that take a dev cut (net less revenue for streamer)
+const THIRD_PARTY_SOURCES = new Set(['blerp']);
 
 let revenue=0, hype=0, goalHit=false, connected=false;
 let clientId='', token='', uid='', lastLevel='chill';
@@ -670,7 +280,6 @@ let totalBitsCount=0, totalSubsCount=0;
 let sessionStart=null, timerInterval=null;
 let autoRefreshOn = false;
 
-// ── SESSION PERSISTENCE ──────────────────────────────────────────
 let saveTimer = null;
 
 function _writeSession() {
@@ -708,7 +317,6 @@ window.addEventListener('beforeunload', () => {
   if(saveTimer) _writeSession();
 });
 
-// ── AUTO-REFRESH TOKEN HELPER ────────────────────────────────────
 async function fetchAutoToken() {
   try {
     const r = await fetch(TOKEN_ENDPOINT);
@@ -725,12 +333,10 @@ async function refreshHypeTrainToken() {
     console.log('🔄 Tracker token refreshed');
     token = fresh.token;
     clientId = fresh.clientId;
-    // Reconnect PubSub with new token
     if(connected) startHypePubSub(token, uid);
   }
 }
 
-// ── BROADCAST CHANNEL (talk to dock) ──────────────────────────────
 const BC = new BroadcastChannel('asiandiva-tracker');
 
 BC.onmessage = (e) => {
@@ -742,29 +348,24 @@ BC.onmessage = (e) => {
   if(msg.type==='test_ht')      { testHypeTrain(); }
 };
 
-// ── PING overlay alive so dock knows it's running ─────────────────
 setInterval(() => { try { BC.postMessage({ type:'ping' }); } catch(e){} }, 3000);
 
-// hype decay
 setInterval(() => { if(hype>0){ hype=Math.max(0,hype-HYPE_DECAY); updateHype(); } }, 1000);
 
 function addRevenue(amount, hypeGain, popType, popText, activityText, user, rawBits, revEarned, giftCount) {
   const wasUnder = revenue < REVENUE_GOAL;
-  revenue = revenue + amount; // no cap - keep tracking past goal
+  revenue = revenue + amount;
   hype    = Math.min(HYPE_MAX, hype+hypeGain);
 
-  // update session stats
   if(popType==='bits') { totalBitsCount += rawBits; }
   else { totalSubsCount += (giftCount > 0 ? giftCount : 1); }
 
   updateGoalBar(); updateHype(); spawnPop(popType, popText);
   if(activityText) addActivity(popType, activityText);
 
-  // shoutout for 500+ bits
   const isBigBits = popType==='bits' && rawBits >= 500;
   if(isBigBits) spawnShoutout(user, rawBits.toLocaleString() + ' bits!');
 
-  // broadcast to dock
   const isBig = isBigBits;
   const revStr = '+$'+revEarned.toFixed(2);
   let dashDesc = '';
@@ -780,7 +381,6 @@ function addRevenue(amount, hypeGain, popType, popText, activityText, user, rawB
 
 function addActivity(type, text) {
   const feed = document.getElementById('activity-feed');
-  // remove empty state
   const empty = feed.querySelector('.activity-empty');
   if(empty) empty.remove();
 
@@ -795,7 +395,6 @@ function addActivity(type, text) {
   feed.innerHTML = '';
   feed.appendChild(item);
 
-  // auto-clear after 8s back to waiting
   clearTimeout(feed._timer);
   feed._timer = setTimeout(() => {
     feed.innerHTML = '<div class="activity-empty">Waiting for activity…</div>';
@@ -838,7 +437,6 @@ function shakeWidget() {
 function triggerMaxHype() {
   const overlay = document.getElementById('max-takeover');
   overlay.classList.add('active');
-  // hard shake
   const w = document.getElementById('widget'); let t=0;
   const frames=[-9,9,-8,8,-7,7,-6,6,-5,5,-4,4,-3,3,-2,2,-1,1,0];
   const shakeId = setInterval(()=>{
@@ -846,7 +444,6 @@ function triggerMaxHype() {
     t++;
     if(t>=frames.length){ clearInterval(shakeId); w.style.transform=''; }
   }, 35);
-  // money rain
   const money=['💸','💰','💵','💲','🤑','💸','💵'];
   for(let i=0;i<22;i++){
     setTimeout(()=>{
@@ -859,7 +456,6 @@ function triggerMaxHype() {
       setTimeout(()=>el.remove(),2400);
     }, i*110);
   }
-  // hide after 3.6s
   setTimeout(()=>{ overlay.classList.remove('active'); }, 3600);
 }
 
@@ -876,15 +472,12 @@ function spawnShoutout(name, amountText) {
   document.getElementById('shoutout-name').textContent   = name;
   document.getElementById('shoutout-amount').textContent = amountText;
   box.style.display = 'block';
-  // restart animation by cloning inner
   const inner = box.querySelector('.shoutout-inner');
   const clone = inner.cloneNode(true);
   box.replaceChild(clone, inner);
   clearTimeout(box._t);
   box._t = setTimeout(() => { box.style.display = 'none'; }, 4500);
 }
-
-
 
 function startSessionTimer() {
   sessionStart = Date.now();
@@ -901,8 +494,6 @@ function stopSessionTimer() {
   timerInterval = null;
   BC.postMessage({ type:'timer', text:'0:00' });
 }
-
-
 
 function startTracking() {
   if(connected) stopTracking();
@@ -923,7 +514,6 @@ function stopTracking() {
   stopSessionTimer();
 }
 
-// ── BACKEND SSE CONNECTION ────────────────────────────────────────
 let sseSource = null;
 const processedEvents = new Set();
 
@@ -947,9 +537,14 @@ function connectBackendSSE() {
       if(ev._ts >= sessionStartTime) sessionStartTime = ev._ts + 1;
 
       if(ev.type === 'bits') {
-        const b=ev.bits, g=b>=500?HYPE_GAIN.bits_lg:b>=100?HYPE_GAIN.bits_md:HYPE_GAIN.bits_sm;
-        const src=ev.source==='blerp'?' (Blerp)':'';
-        addRevenue(b*RATES.bits,g,'bits','+'+b+' bits'+src, ev.user+' just gave '+b+' bits'+src, ev.user, b, b*RATES.bits, 0);
+        const b = ev.bits;
+        const g = b>=500 ? HYPE_GAIN.bits_lg : b>=100 ? HYPE_GAIN.bits_md : HYPE_GAIN.bits_sm;
+        // Third-party sources (Blerp) take a 20% dev cut — streamer nets $0.008/bit vs $0.01
+        const isThirdParty = THIRD_PARTY_SOURCES.has(ev.source);
+        const rate = isThirdParty ? RATES.bits_thirdparty : RATES.bits;
+        const src  = isThirdParty ? ' (Blerp)' : '';
+        const netRevenue = b * rate;
+        addRevenue(netRevenue, g, 'bits', '+'+b+' bits'+src, ev.user+' just gave '+b+' bits'+src, ev.user, b, netRevenue, 0);
       }
       if(ev.type === 'sub') {
         const tier=Math.round(parseInt(ev.tier)/1000), rate=tier===3?RATES.t3:tier===2?RATES.t2:RATES.t1;
@@ -965,8 +560,6 @@ function connectBackendSSE() {
       }
     } catch(err) { console.error('SSE parse error:', err); }
   };
-
-  // EventSource auto-reconnects on error — no manual reconnect needed
 }
 
 function triggerGoalAnimation(){
@@ -1008,7 +601,6 @@ function resetAll(){
   BC.postMessage({ type:'reset_done' });
   BC.postMessage({ type:'revenue', display:'$0.00', pct:0 });
   BC.postMessage({ type:'stats', bits:0, subs:0 });
-  // clear backend server event buffer
   fetch('https://asiandiva-bits-tracker.onrender.com/reset', { method:'POST' })
     .catch(()=>{});
 }
@@ -1019,18 +611,15 @@ function setStatus(state,text){
   BC.postMessage({ type:'status', state, text });
 }
 
-// ── AUTO CONNECT ON STARTUP ──────────────────────────────────────
 (async function() {
   const p = new URLSearchParams(window.location.search);
   const urlClientId = p.get('client_id') || '';
   const urlToken    = p.get('token')     || '';
   const urlUid      = p.get('uid')       || DEFAULT_UID;
 
-  // Wait a moment for BC connect from mod panel
   await new Promise(r => setTimeout(r, 1200));
-  if(connected) return; // already connected via BC
+  if(connected) return;
 
-  // Try auto-refresh from backend first
   const auto = await fetchAutoToken();
   if(auto) {
     autoRefreshOn = true;
@@ -1038,19 +627,16 @@ function setStatus(state,text){
     token = auto.token;
     uid = urlUid;
     startTracking();
-    // Refresh every 30 min
     setInterval(refreshHypeTrainToken, 30 * 60 * 1000);
     return;
   }
 
-  // Fall back to URL params
   if(urlClientId && urlToken && urlUid) {
     clientId = urlClientId; token = urlToken; uid = urlUid;
     startTracking();
   }
 })();
 
-// ── HYPE TRAIN PUBSUB ────────────────────────────────────────────
 let pubSubWs = null;
 let pubSubPingInterval = null;
 
@@ -1078,7 +664,6 @@ function startHypePubSub(token, broadcasterId) {
         BC.postMessage({type:'ht_status', state:'live', text:'Live — watching for hype trains'});
       } else {
         BC.postMessage({type:'ht_status', state:'err', text:'Hype train: ' + msg.error});
-        // Token may have expired — try auto-refresh
         if(autoRefreshOn) setTimeout(refreshHypeTrainToken, 2000);
       }
     }
@@ -1109,14 +694,10 @@ function startHypePubSub(token, broadcasterId) {
   };
 }
 
-// ── HYPE TRAIN MODE ───────────────────────────────────────────────
 let htConnected=false, htActive=false;
 let htCountdownInterval=null, htCurrentLevel=0;
 let htEndTimeout=null, htExitTimeout=null;
 
-
-
-// enter hype train — fade normal out, fade ht-mode in
 function enterHypeTrainMode(level,progress,goal,expiresAt){
   if(htEndTimeout) { clearTimeout(htEndTimeout); htEndTimeout=null; }
   if(htExitTimeout) { clearTimeout(htExitTimeout); htExitTimeout=null; }
@@ -1135,7 +716,6 @@ function enterHypeTrainMode(level,progress,goal,expiresAt){
   if(expiresAt) startHtCountdown(expiresAt);
 }
 
-// ── HYPE PROGRESSION MESSAGES ────────────────────────────────────
 const HYPE_MSGS = [
   '🚂 GAS UP THE TRAIN!',
   '⚡ KEEP IT GOING!',
@@ -1147,35 +727,28 @@ let lastHypeMsg = -1;
 let hypeMsgTimer = null;
 
 function showHypeMsg() {
-  // pick a random message that's different from last
   let idx;
   do { idx = Math.floor(Math.random() * HYPE_MSGS.length); } while(idx === lastHypeMsg);
   lastHypeMsg = idx;
-
   const el = document.getElementById('ht-hype-msg');
   if(!el) return;
-
-  // clear any existing timer
   if(hypeMsgTimer) clearTimeout(hypeMsgTimer);
-
   el.textContent = HYPE_MSGS[idx];
   el.style.display = 'block';
   el.style.animation = 'none';
   void el.offsetWidth;
   el.style.animation = 'hype-msg-in 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards';
-
   hypeMsgTimer = setTimeout(() => {
     el.style.animation = 'hype-msg-out 0.4s ease forwards';
     setTimeout(() => { el.style.display = 'none'; }, 400);
   }, 2000);
 }
 
-// update bar + level — show level-up celebration if level changed
 function updateHypeTrainMode(level,progress,goal,expiresAt){
   if(level > htCurrentLevel && htCurrentLevel > 0){
     showLevelUpCelebration(level);
   } else {
-    showHypeMsg(); // show random hype message on progression
+    showHypeMsg();
   }
   htCurrentLevel=level;
   updateHypeTrainBar(level,progress,goal);
@@ -1196,7 +769,6 @@ function updateHypeTrainBar(level,progress,goal){
   document.getElementById('ht-train').style.left=Math.max(pct,5)+'%';
 }
 
-// brief level-up flash overlay
 function showLevelUpCelebration(level){
   const flash=document.getElementById('ht-levelup-flash');
   document.getElementById('levelup-text').textContent='Level '+level+'!';
@@ -1204,7 +776,6 @@ function showLevelUpCelebration(level){
   setTimeout(()=>{ flash.style.display='none'; }, 1800);
 }
 
-// end train — show congratulations then slowly fade to normal
 function endHypeTrainMode(level){
   if(!htActive) return;
   BC.postMessage({type:'ht_end', level});
