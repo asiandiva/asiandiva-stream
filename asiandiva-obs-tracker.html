@@ -343,7 +343,8 @@ function surfaceY(){const sc=scene.getBoundingClientRect(),inn=$('inner').getBou
 function restart(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);}
 function flinch(){if(full){restart(scene,'shake');}else{dave.src=S.angry;clearTimeout(angryT);angryT=setTimeout(()=>{angryT=null;dave.src=S[cur];},1200);}dave.classList.remove('bob');restart(dave,'flinch');setTimeout(()=>{dave.classList.remove('flinch');dave.classList.add('bob')},620);}
 const PRIZES=["Everyone gets 2 million poops","Dave does a dare","10 minutes of Dave scavenger hunt","Sing mode for 5 minutes","5 million raffle","Dave does 20 squats","Dave chugs a whole cup of water","Dave bows to you for 30 minutes","Dave talks in third person for 20 minutes","Ban a word for 30 minutes","Everyone gets 1 million poops","Dave barks at the end of every sentence for 10 minutes"];
-let tkId=0;
+let tkId=0;const TICKET_MS=10*60*1000;
+function hideTicket(){$('ticket').className='ticket';$('tank').classList.remove('tk');}
 async function showTicket(name){
  const my=++tkId;const tk=$('ticket'),slot=$('tkSlot');$('tkName').textContent=name;
  const win=PRIZES[Math.floor(Math.random()*PRIZES.length)];
@@ -353,8 +354,9 @@ async function showTicket(name){
  while(d<340){if(my!==tkId)return;i=(i+1)%PRIZES.length;slot.textContent=PRIZES[i];await wait(d);d*=1.13;}
  if(my!==tkId)return;
  slot.textContent=win;slot.className='tk-slot';restart(slot,'land');
- try{localStorage.setItem('ad_tank_ticket',JSON.stringify({name,prize:win}));}catch(e){}
+ try{localStorage.setItem('ad_tank_ticket',JSON.stringify({name,prize:win,at:Date.now()}));}catch(e){}
  try{new BroadcastChannel('asiandiva-tracker').postMessage({type:'ticket',user:name,prize:win});}catch(e){}
+ setTimeout(()=>{if(my===tkId)hideTicket();},TICKET_MS);
  const sc=scene.getBoundingClientRect(),r=slot.getBoundingClientRect(),cx=r.left-sc.left+r.width/2,cy=r.top-sc.top+r.height/2;
  for(let k=0;k<16;k++){const sp=document.createElement('div');sp.className='spark';const a=k/16*Math.PI*2,dist=90+Math.random()*60;sp.style.left=(cx-7)+'px';sp.style.top=(cy-7)+'px';sp.style.setProperty('--dx',Math.cos(a)*dist+'px');sp.style.setProperty('--dy',Math.sin(a)*dist+'px');$('sparks').appendChild(sp);setTimeout(()=>sp.remove(),950);}
 }
@@ -433,7 +435,7 @@ async function run(){
 }
 function reset_(){if(ht){clearInterval(htTimer);clearInterval(puffT);$('htsign').className='htsign';$('rail').classList.remove('show');$('train').className='train';ht=false;speed=1;htLevel=0;}tkId++;$('ticket').className='ticket';$('tank').classList.remove('tk');queue=[];rev=0;clearTimeout(angryT);angryT=null;dave.src=S[cur];render();dave.src=S[cur];}
 
-function showTicketStatic(t){const tk=$('ticket');$('tkName').textContent=t.name;$('tkSlot').textContent=t.prize;$('tkSlot').className='tk-slot';tk.className='ticket show';}
+function showTicketStatic(t){const left=TICKET_MS-(Date.now()-(t.at||Date.now()));if(left<=0)return;const my=++tkId;const tk=$('ticket');$('tkName').textContent=t.name;$('tkSlot').textContent=t.prize;$('tkSlot').className='tk-slot';tk.className='ticket show';$('tank').classList.add('tk');setTimeout(()=>{if(my===tkId)hideTicket();},left);}
 window.Tank={
  event(type,name,val){queue.push({type,name:name||'someone',val});run();},
  htStart(l,x){htStart(l,x);},
